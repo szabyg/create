@@ -10,15 +10,14 @@
         <script src="../deps/vie-min.js"></script>
         <script src="../deps/hallo.js"></script>
         <script src="../deps/hallo/format.js"></script>
-<!--        <script src="../src/jquery.Midgard.midgardCreate.js"></script>-->
-<!--        <script src="../src/jquery.Midgard.midgardToolbar.js"></script>-->
-<!--        <script src="../src/jquery.Midgard.midgardStorage.js"></script>-->
-<!--        <script src="../src/jquery.Midgard.midgardEditable.js"></script>-->
+        <script src="../src/jquery.Midgard.midgardCreate.js"></script>
+        <script src="../src/jquery.Midgard.midgardToolbar.js"></script>
+        <script src="../src/jquery.Midgard.midgardStorage.js"></script>
+        <script src="../src/jquery.Midgard.midgardEditable.js"></script>
         <script>
-            jQuery(document).ready(function() {
-                // jQuery('body').midgardCreate();
-                console.info(jQuery('body'));
-            });
+            jQuery(document).ready(function() { _.defer(function(){
+                jQuery('body').midgardCreate();
+            });});
         </script>
         <link rel="stylesheet" href="../deps/hallo/vader/jquery-ui-1.8.16.custom.css" />
         <link rel="stylesheet" href="../themes/midgard-theme/jquery.ui.all.css" />
