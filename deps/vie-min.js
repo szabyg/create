@@ -1,1 +1,2674 @@
-(function(){var a=this,d=a.jQuery,e=a.Backbone,b=a._;var c=a.VIE=function(f){this.config=(f)?f:{};this.services={};this.entities=new this.Collection();this.Entity.prototype.entities=this.entities;this.entities.vie=this;this.Entity.prototype.entityCollection=this.Collection;this.Entity.prototype.vie=this;this.defaultProxyUrl=(this.config.defaultProxyUrl)?this.config.defaultProxyUrl:"../utils/proxy/proxy.php";this.Namespaces.prototype.vie=this;this.namespaces=new this.Namespaces((this.config.defaultNamespace)?this.config.defaultNamespace:"http://ontology.vie.js/");this.Type.prototype.vie=this;this.Types.prototype.vie=this;this.Attribute.prototype.vie=this;this.Attributes.prototype.vie=this;this.types=new this.Types();this.types.add("Thing");if(this.config.classic!==false){this.RDFa=new this.ClassicRDFa(this);this.RDFaEntities=new this.ClassicRDFaEntities(this);this.EntityManager=new this.ClassicEntityManager(this);this.cleanup=function(){this.entities.reset()}}};c.prototype.use=function(f,g){if(!g){g=f.name}f.vie=this;f.name=g;if(f.init){f.init()}this.services[g]=f};c.prototype.service=function(f){if(!this.services[f]){throw"Undefined service "+f}return this.services[f]};c.prototype.getServicesArray=function(){var f=[];b.each(this.services,function(g,h){f.push(g)});return f};c.prototype.load=function(f){if(!f){f={}}f.vie=this;return new this.Loadable(f)};c.prototype.save=function(f){if(!f){f={}}f.vie=this;return new this.Savable(f)};c.prototype.remove=function(f){if(!f){f={}}f.vie=this;return new this.Removable(f)};c.prototype.analyze=function(f){if(!f){f={}}f.vie=this;return new this.Analyzable(f)};c.prototype.find=function(f){if(!f){f={}}f.vie=this;return new this.Findable(f)};if(typeof exports==="object"){exports.VIE=c;if(!d){d=require("jquery")}if(!e){e=require("backbone")}if(!b){b=require("underscore")._}}c.prototype.Able=function(){};c.prototype.Able.prototype={using:function(g){var f=this;if(g instanceof Array){b(g).each(function(i){f._using(i)})}else{var h=g;f._using(h)}return this},_using:function(f){var g=typeof f==="string"?this.vie.service(f):f;this.services.push(g);return this},init:function(g,f){this.methodName=f;this.options=g;this.services=g.from||g.using||g.to||[];this.vie=g.vie;this.deferred=d.Deferred();this.resolve=this.deferred.resolve;this.resolveWith=this.deferred.resolveWith;this.reject=this.deferred.reject;this.rejectWith=this.deferred.rejectWith;this.success=this.done=this.deferred.done;this.fail=this.deferred.fail;this.then=this.deferred.then;this.always=this.deferred.always;this.from=this.using;this.to=this.using},execute:function(){var f=this;b(this.services).each(function(g){g[f.methodName](f)});return this}};c.prototype.Loadable=function(f){this.init(f,"load")};c.prototype.Loadable.prototype=new c.prototype.Able();c.prototype.Savable=function(f){this.init(f,"save")};c.prototype.Savable.prototype=new c.prototype.Able();c.prototype.Removable=function(f){this.init(f,"remove")};c.prototype.Removable.prototype=new c.prototype.Able();c.prototype.Analyzable=function(f){this.init(f,"analyze")};c.prototype.Analyzable.prototype=new c.prototype.Able();c.prototype.Findable=function(f){this.init(f,"find")};c.prototype.Findable.prototype=new c.prototype.Able();d.fn.compare=function(j){if(this.length!==j.length){return false}var g=this.sort(),f=j.sort();for(var h=0;j[h];h++){if(g[h]!==f[h]){return false}}return true};if(!Array.prototype.remove){Array.prototype.remove=function(){var h=this.remove.arguments;var j;if(h[0]&&h[0] instanceof Array){var f=h[0];for(j=0;j<f.length;j++){this.remove(f[j])}}else{for(j=0;j<h.length;j++){while(true){var g=this.indexOf(h[j]);if(g!==-1){this.splice(g,1)}else{break}}}}return this}}if(!Array.prototype.unduplicate){Array.prototype.unduplicate=function(){var f=this.sort();var h=[];for(var g=0;g<f.length;g++){if(g===f.length-1||f[g]!==f[g+1]){h.push(f[g])}}return h}}c.Util={toCurie:function(g,j,i){if(c.Util.isCurie(g,i)){return g}var l=":";for(var f in i.toObj()){if(g.indexOf(i.get(f))===1){var h=new RegExp("^<"+i.get(f));if(f===""){l=""}return((j)?"[":"")+g.replace(h,f+l).replace(/>$/,"")+((j)?"]":"")}}throw new Error("No prefix found for URI '"+g+"'!")},isCurie:function(f,g){try{c.Util.toUri(f,g);return true}catch(h){return false}},toUri:function(g,i){var j=":";for(var f in i.toObj()){if(f!==""&&(g.indexOf(f)===0||g.indexOf(f)===1)){var h=new RegExp("^\\[{0,1}"+f+j);return"<"+g.replace(h,i.get(f)).replace(/\]{0,1}$/,"")+">"}}if(g.indexOf(j)===-1&&i.base()){return"<"+i.base()+g+">"}throw new Error("No prefix found for CURIE '"+g+"'!")},isUri:function(f){return(typeof f==="string"&&f.search(/^<.+:.+>$/)===0)},_blankNodeSeed:new Date().getTime()%1000,blankNodeID:function(){this._blankNodeSeed+=1;return"_:bnode"+this._blankNodeSeed.toString(16)}};c.prototype.Entity=function(h,i){var g=this;var f=function(k,m){var l=k;if(m.isUri(k)||k.indexOf("@")===0){}else{if(m.isCurie(k)){l=m.uri(k)}else{if(!m.isUri(k)){if(k.indexOf(":")===-1){l="<"+m.base()+k+">"}else{l="<"+k+">"}}}}return l};if("@type" in h){if(b.isArray(h["@type"])){h["@type"]=b.map(h["@type"],function(k){if(this.types.get(k)){return this.types.get(k).id}else{return k}},g.vie)}else{if(typeof h["@type"]==="string"){if(g.vie.types.get(h["@type"])){h["@type"]=g.vie.types.get(h["@type"]).id}}}}else{h["@type"]=g.vie.types.get("Thing").id}h=(h)?h:{};b.each(h,function(l,k){var m=f(k,this.namespaces);if(k!==m){delete h[k];h[m]=l}},g.vie);var j=e.Model.extend({idAttribute:"@subject",initialize:function(k,l){if(k["@subject"]){this.id=this["@subject"]=this.toReference(k["@subject"])}return this},get:function(k){k=f(k,g.vie.namespaces);var l=e.Model.prototype.get.call(this,k);if(b.isArray(l)){l=b.map(l,function(m){if(k==="@type"&&g.vie.types.get(m)){return g.vie.types.get(m)}else{if(g.vie.entities.get(m)){return g.vie.entities.get(m)}else{return m}}},this)}else{if(typeof l!=="string"){return l}if(k==="@type"&&g.vie.types.get(l)){l=g.vie.types.get(l)}else{if(g.vie.entities.get(l)){l=g.vie.entities.get(l)}}}return l},has:function(k){k=f(k,g.vie.namespaces);return e.Model.prototype.has.call(this,k)},set:function(l,k){if(!l){return this}if(l.attributes){l=l.attributes}b.each(l,function(n,m){var o=f(m,g.vie.namespaces);if(m!==o){delete l[m];l[o]=n}},this);b.each(l,function(n,m){if(m.indexOf("@")===-1){if(typeof n==="object"&&!d.isArray(n)&&!n.isCollection){var o=new g.vie.Entity(n,k);g.vie.entities.addOrUpdate(o);l[m]=o.getSubject()}else{if(n.isCollection){n.each(function(p){g.vie.entities.addOrUpdate(p)})}}}},this);return e.Model.prototype.set.call(this,l,k)},unset:function(k,l){k=f(k,g.vie.namespaces);return e.Model.prototype.unset.call(this,k,l)},getSubject:function(){if(typeof this.id==="undefined"){this.id=this.attributes[this.idAttribute]}if(typeof this.id==="string"){if(this.id.substr(0,7)==="http://"||this.id.substr(0,4)==="urn:"){return this.toReference(this.id)}return this.id}return this.cid.replace("c","_:bnode")},getSubjectUri:function(){return this.fromReference(this.getSubject())},isReference:function(k){var l=new RegExp("^\\<([^\\>]*)\\>$");if(l.exec(k)){return true}return false},toReference:function(k){if(typeof k!=="string"){return k}if(this.isReference(k)){return k}return"<"+k+">"},fromReference:function(k){if(typeof k!=="string"){return k}if(!this.isReference(k)){return k}return k.substring(1,k.length-1)},as:function(k){if(k==="JSON"){return this.toJSON()}if(k==="JSONLD"){return this.toJSONLD()}throw"Unknown encoding "+k},toJSONLD:function(){var l={};var k=this;b.each(k.attributes,function(o,n){var m=o;if(n==="@type"&&typeof m==="object"){m=m.id}if(o instanceof k.vie.Collection){m=o.map(function(p){return p.getSubject()})}l[n]=m});l["@subject"]=k.getSubject();return l},setOrAdd:function(m,l){var k=this;if(typeof m==="string"&&l){k._setOrAddOne(m,l)}else{if(typeof m==="object"){b(m).each(function(o,n){k._setOrAddOne(n,o)})}}return this},_setOrAddOne:function(k,n){var o;k=f(k,g.vie.namespaces);var p=e.Model.prototype.get.call(this,k);if(!p){o={};o[k]=n;this.set(o)}else{if(!(p instanceof Array)){p=[p]}var m=false;for(var l=0;l<p.length;l++){if(typeof p[l]==="string"){m|=p[l]==n}else{m|=p[l].id==n}}if(!m){p.push(n);o={};o[k]=p;this.set(o)}}},hasType:function(k){k=g.vie.types.get(k);return this.hasPropertyValue("@type",k)},hasPropertyValue:function(m,l){var k=this.get(m);if(!(l instanceof Object)){l=g.vie.entities.get(l)}if(k instanceof Array){return k.indexOf(l)!==-1}else{return k===l}},isof:function(m){var l=this.get("@type");if(l===undefined){return false}l=(b.isArray(l))?l:[l];m=(g.vie.types.get(m))?g.vie.types.get(m):new g.vie.Type(m);for(var k=0;k<l.length;k++){if(g.vie.types.get(l[k])){if(g.vie.types.get(l[k]).isof(m)){return true}}else{var n=new g.vie.Type(l[k]);if(n.id===m.id){return true}}}return false},isEntity:true,vie:g.vie});return new j(h,i)};c.prototype.Collection=e.Collection.extend({model:c.prototype.Entity,get:function(f){if(f===null){return null}f=(f.getSubject)?f.getSubject():f;if(typeof f==="string"&&f.indexOf("_:")===0){if(f.indexOf("bnode")===2){f=f.replace("_:bnode","c");return this._byCid[f]}else{return this._byId["<"+f+">"]}}else{f=this.toReference(f);return this._byId[f]}},addOrUpdate:function(f){var j=this;var h;if(b.isArray(f)){var i=[];b.each(f,function(k){i.push(j.addOrUpdate(k))});return i}if(!f.isEntity){f=new this.model(f)}if(f.id&&this.get(f.id)){h=this.get(f.id)}if(this.getByCid(f.cid)){var h=this.getByCid(f.cid)}if(h){var g={};b.each(f.attributes,function(l,k){if(!h.has(k)){g[k]=l;return true}if(h.get(k)===l){return true}g[k]=l});if(!b.isEmpty(g)){h.set(g)}return h}this.add(f);return f},isReference:function(f){var g=new RegExp("^\\<([^\\>]*)\\>$");if(g.exec(f)){return true}return false},toReference:function(f){if(this.isReference(f)){return f}return"<"+f+">"},fromReference:function(f){if(!this.isReference(f)){return f}return f.substring(1,f.length-1)},isCollection:true});if(c.prototype.Type){throw"ERROR: VIE.Type is already defined. Please check your installation!"}if(c.prototype.Types){throw"ERROR: VIE.Types is already defined. Please check your installation!"}c.prototype.Type=function(g,f){if(g===undefined||typeof g!=="string"){throw"The type constructor needs an 'id' of type string! E.g., 'Person'"}this.id=this.vie.namespaces.isUri(g)?g:this.vie.namespaces.uri(g);if(this.vie.types.get(this.id)){throw new Error("The type "+this.id+" is already defined!")}this.supertypes=new this.vie.Types();this.subtypes=new this.vie.Types();this.attributes=new this.vie.Attributes(this,(f)?f:[]);this.isof=function(h){h=this.vie.types.get(h);if(h){return h.subsumes(this.id)}else{throw"No valid type given"}};this.subsumes=function(h){h=this.vie.types.get(h);if(h){if(this.id===h.id){return true}var i=this.subtypes.list();for(var k=0;k<i.length;k++){var j=i[k];if(j){if(j.id===h.id||j.subsumes(h)){return true}}}return false}else{throw"No valid type given"}};this.inherit=function(h){if(typeof h==="string"){this.inherit(this.vie.types.get(h))}else{if(h instanceof this.vie.Type){h.subtypes.addOrOverwrite(this);this.supertypes.addOrOverwrite(h);try{this.attributes.list()}catch(k){h.subtypes.remove(this);this.supertypes.remove(h);throw k}}else{if(d.isArray(h)){for(var j=0;j<h.length;j++){this.inherit(h[j])}}else{throw"Wrong argument in VIE.Type.inherit()"}}}return this};this.hierarchy=function(){var i={id:this.id,subtypes:[]};var h=this.subtypes.list();for(var k=0;k<h.length;k++){var j=this.vie.types.get(h[k]);i.subtypes.push(j.hierarchy())}return i};this.instance=function(i,j){i=(i)?i:{};for(var h in i){if(h.indexOf("@")!==0&&!this.attributes.get(h)){throw new Error("Cannot create an instance of "+this.id+" as the type does not allow an attribute '"+h+"'!")}}i["@type"]=this.id;return new this.vie.Entity(i,j)};this.toString=function(){return this.id}};c.prototype.Types=function(){this._types={};this.add=function(h,f){if(this.get(h)){throw"Type '"+h+"' already registered."}else{if(typeof h==="string"){var g=new this.vie.Type(h,f);this._types[g.id]=g;return g}else{if(h instanceof this.vie.Type){this._types[h.id]=h;return h}else{throw"Wrong argument to VIE.Types.add()!"}}}};this.addOrOverwrite=function(g,f){if(this.get(g)){this.remove(g)}return this.add(g,f)};this.get=function(g){if(!g){return undefined}if(typeof g==="string"){var f=this.vie.namespaces.isUri(g)?g:this.vie.namespaces.uri(g);return this._types[f]}else{if(g instanceof this.vie.Type){return this.get(g.id)}}return undefined};this.remove=function(j){var f=this.get(j);if(!f){return this}delete this._types[f.id];var g=f.subtypes.list();for(var i=0;i<g.length;i++){var h=g[i];if(h.supertypes.list().length===1){this.remove(h)}else{h.supertypes.remove(f.id)}}return f};this.toArray=this.list=function(){var f=[];for(var g in this._types){f.push(this._types[g])}return f};this.sort=function(h,g){var n=this;var f=$.merge([],($.isArray(h))?h:[h]);g=(g)?true:false;for(var l=0;l<f.length;l++){var k=f.shift();var m=0;for(var j=0;j<f.length;j++){var i=n.vie.types.get(f[j]);if(i.subsumes(k)){m=j}}f.splice(m+1,0,k)}if(!g){f.reverse()}return f}};if(c.prototype.Attribute){throw"ERROR: VIE.Attribute is already defined. Please check your installation!"}if(c.prototype.Attributes){throw"ERROR: VIE.Attributes is already defined. Please check your installation!"}c.prototype.Attribute=function(h,f,g){if(h===undefined||typeof h!=="string"){throw"The attribute constructor needs an 'id' of type string! E.g., 'Person'"}if(f===undefined){throw"The attribute constructor needs 'range'."}if(g===undefined){throw"The attribute constructor needs a 'domain'."}this._domain=g;this.range=(d.isArray(f))?f:[f];this.id=this.vie.namespaces.isUri(h)?h:this.vie.namespaces.uri(h);this.applies=function(j){if(this.vie.types.get(j)){j=this.vie.types.get(j)}for(var k=0;k<this.range.length;k++){var i=this.vie.types.get(this.range[k]);if(i===undefined&&typeof j==="string"){if(j===this.range[k]){return true}}else{if(j.isof(this.range[k])){return true}}}return false}};c.prototype.Attributes=function(h,g){this.domain=h;this._local={};this._attributes={};this.add=function(k,j){if(this.get(k)){throw"Attribute '"+k+"' already registered for domain "+this.domain.id+"!"}else{if(typeof k==="string"){var i=new this.vie.Attribute(k,j,this.domain);this._local[i.id]=i;return i}else{if(k instanceof this.vie.Type){k.domain=this.domain;k.vie=this.vie;this._local[k.id]=k;return k}else{throw"Wrong argument to VIE.Types.add()!"}}}};this.remove=function(j){var i=this.get(j);if(i.id in this._local){delete this._local[i.id];return i}throw"The attribute "+j+" is inherited and cannot be removed from the domain "+this.domain.id+"!"};this.get=function(j){if(typeof j==="string"){var i=this.vie.namespaces.isUri(j)?j:this.vie.namespaces.uri(j);return this._inherit()._attributes[i]}else{if(j instanceof this.vie.Attribute){return this.get(j.id)}else{throw"Wrong argument in VIE.Attributes.get()"}}};this._inherit=function(){var n=d.extend(true,{},this._local);var o=b.map(this.domain.supertypes.list(),function(p){return p.attributes});var y={};var s={};for(var t=0;t<o.length;t++){var w=o[t].list();for(var u=0;u<w.length;u++){var l=w[u].id;if(!(l in n)){if(!(l in y)&&!(l in s)){y[l]=w[u]}else{if(!s[l]){s[l]=[]}if(l in y){s[l]=d.merge(s[l],y[l].range);delete y[l]}s[l]=d.merge(s[l],w[u].range);s[l]=s[l].unduplicate()}}}}d.extend(n,y);for(var l in s){var v=s[l];var j=[];for(var i=0;i<v.length;i++){var k=this.vie.types.get(v[i]);var m=false;if(k){for(var u=0;u<v.length;u++){if(u===i){continue}var q=this.vie.types.get(v[u]);if(q&&q.isof(k)){m=true;break}}}if(!m){j.push(v[i])}}n[l]=new this.vie.Attribute(l,j,this)}this._attributes=n;return this};this.toArray=this.list=function(k){var l=[];var j=this._inherit()._attributes;for(var i in j){if(!k||j[i].applies(k)){l.push(j[i])}}return l};if(!d.isArray(g)){g=[g]}for(var f=0;f<g.length;f++){this.add(g[f].id,g[f].range)}};if(c.prototype.Namespaces){throw"ERROR: VIE.Namespaces is already defined. Please check your installation!"}c.prototype.Namespaces=function(g,f){if(!g){throw"Please provide a base namespace!"}this._base=g;this.base=function(h){if(!h){return this._base}else{if(typeof h==="string"){this._base=h}else{throw"Please provide a valid namespace!"}}return this};this._namespaces=(f)?f:{};this.add=function(i,h){if(typeof i==="object"){for(var j in i){this.add(j,i[j])}return this}if(i===""){this.base(h)}else{if(this.containsPrefix(i)&&h!==this._namespaces[i]){throw"ERROR: Trying to register namespace prefix mapping ("+i+","+h+")!There is already a mapping existing: '("+i+","+this.get(i)+")'!"}else{d.each(this._namespaces,function(l,k){if(k===h&&l!==i){throw"ERROR: Trying to register namespace prefix mapping ("+i+","+h+")!There is already a mapping existing: '("+l+","+h+")'!"}})}}this._namespaces[i]=h;return this};this.addOrReplace=function(j,i){if(typeof j==="object"){for(var l in j){this.addOrReplace(l,j[l])}return this}var h=this;if(this.containsPrefix(j)&&i!==this._namespaces[j]){this.remove(j)}else{d.each(this._namespaces,function(m,k){if(k===i&&m!==j){h.remove(m)}})}return this.add(j,i)};this.get=function(h){if(h===""){return this.base()}return this._namespaces[h]};this.getPrefix=function(h){d.each(this._namespaces,function(j,i){if(i===h){return j}});return undefined};this.containsPrefix=function(h){return(h in this._namespaces)};this.containsNamespace=function(h){return this.getPrefix(h)!==undefined};this.update=function(h,i){this._namespaces[h]=i;return this};this.remove=function(h){delete this._namespaces[h];return this};this.toObj=function(){return d.extend({"":this._base},this._namespaces)};this.curie=function(h,i){return c.Util.toCurie(h,i,this)};this.isCurie=function(h){return c.Util.isCurie(h,this)};this.uri=function(h){return c.Util.toUri(h,this)};this.isUri=c.Util.isUri};c.prototype.ClassicRDFa=function(f){this.vie=f};c.prototype.ClassicRDFa.prototype={readEntities:function(f){var g=[];var h=this.vie.RDFaEntities.getInstances(f);b.each(h,function(i){g.push(i.toJSONLD())});return g},findPredicateElements:function(h,g,f){return this.vie.services.rdfa._findPredicateElements(h,g,f)},getPredicate:function(f){return this.vie.services.rdfa.getElementPredicate(f)},getSubject:function(f){return this.vie.services.rdfa.getElementSubject(f)}};c.prototype.ClassicRDFaEntities=function(f){this.vie=f};c.prototype.ClassicRDFaEntities.prototype={getInstances:function(f){if(!this.vie.services.rdfa){this.vie.use(new this.vie.RdfaService())}var g=null;var h=false;this.vie.load({element:f}).from("rdfa").execute().done(function(i){g=i;h=true});while(!h){}return g},getInstance:function(f){var g=this.getInstances(f);if(g&&g.length){return g[0]}return null}};c.prototype.ClassicEntityManager=function(f){this.vie=f;this.entities=this.vie.entities};c.prototype.ClassicEntityManager.prototype={getBySubject:function(f){return this.vie.entities.get(f)},getByJSONLD:function(f){return this.vie.entities.addOrUpdate(f)},initializeCollection:function(){return}};(function(){c.prototype.DBPediaService=function(g){var h={name:"dbpedia",namespaces:{owl:"http://www.w3.org/2002/07/owl#",yago:"http://dbpedia.org/class/yago/",dbonto:"http://dbpedia.org/ontology/"}};this.options=d.extend(h,g?g:{});this.vie=null;this.name=this.options.name;this.connector=new f(this.options);d.ajaxSetup({converters:{"text application/rdf+json":function(i){return JSON.parse(i)}}})};c.prototype.DBPediaService.prototype={init:function(){for(var g in this.options.namespaces){try{var i=this.options.namespaces[g];this.vie.namespaces.add(g,i)}catch(h){}}this.namespaces=new this.vie.Namespaces(this.options.namespaces);this.rules=[{left:["?subject a <http://dbpedia.org/ontology/Person>"],right:function(j){return function(){return d.rdf.triple(this.subject.toString()+" a <http://schema.org/Person>",{namespaces:j})}}(this.namespaces.toObj())}]},load:function(l){var j=l instanceof this.vie.Loadable;if(!j){throw"Invalid Loadable passed"}var g=this;var h=l.options.entity;if(!h){l.resolve([])}var k=function(n){var p=h.replace(/^</,"").replace(/>$/,"");if(n[p]){var o=g.vie.entities.get(h);if(!o){var m={"@subject":h,"@type":n[p]["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]};delete n[p]["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"];d.extend(m,n[p]);g.vie.entities.add(m);o=g.vie.entities.get(h)}l.resolve([o])}else{l.reject(undefined)}};var i=function(m){l.reject(m)};this.connector.load(h,k,i)}};var f=function(g){this.options=g};f.prototype={load:function(j,l,i,h){if(!h){h={}}var g=j.replace(/^</,"").replace(/>$/,"").replace("resource","data")+".jrdf";var k=h.format||"application/rdf+json";if(typeof exports!=="undefined"&&typeof process!=="undefined"){return this.loadNode(g,l,i,h,k)}d.ajax({success:function(m){l(m)},error:i,type:"GET",url:g,dataType:"jsonp"})},loadNode:function(k,m,h,g,l){var j=require("request");var i=j({method:"GET",uri:k,headers:{Accept:l}},function(p,o,n){m({results:JSON.parse(n)})});i.end()}}})();c.prototype.RdfaRdfQueryService=function(f){if(!f){f={}}this.vie=null;this.name="rdfardfquery"};c.prototype.RdfaRdfQueryService.prototype={analyze:function(f){f.reject("Not yet implemented")},load:function(f){f.reject("Not yet implemented")},save:function(h){var g=h instanceof this.vie.Savable;if(!g){h.reject("Invalid Savable passed")}if(!h.options.element){h.reject("Unable to write entity to RDFa, no element given")}if(!h.options.entity){h.reject("Unable to write to RDFa, no entity given")}if(!d.rdf){h.reject("No rdfQuery found.")}var f=h.options.entity;var i=[];i.push(f.getSubject()+" a "+f.get("@type"));d(h.options.element).rdfa(i);h.resolve()}};c.prototype.RdfaService=function(f){if(!f){f={}}this.vie=null;this.name="rdfa";this.subjectSelector=f.subjectSelector?f.subjectSelector:"[about],[typeof],[src],[href],html";this.predicateSelector=f.predicateSelector?f.predicateSelector:"[property],[rel]";this.views=[]};c.prototype.RdfaService.prototype={analyze:function(h){var f=this;var g=h instanceof this.vie.Analyzable;if(!g){throw"Invalid Analyzable passed"}return this.load(new this.vie.Loadable({element:h.options.element}))},load:function(l){var f=this;var g=l instanceof this.vie.Loadable;if(!g){throw"Invalid Loadable passed"}var h;if(!l.options.element){if(typeof document==="undefined"){return l.resolve([])}h=d(document)}else{h=l.options.element}var i=this.xmlns(h);for(var j in i){this.vie.namespaces.addOrReplace(j,i[j])}var k=[];d(this.subjectSelector,h).add(d(h).filter(this.subjectSelector)).each(function(){var m=f._readEntity(d(this));if(m){k.push(m)}});l.resolve(k)},save:function(g){var f=g instanceof this.vie.Savable;if(!f){throw"Invalid Savable passed"}if(!g.options.element){throw"Unable to write entity to RDFa, no element given"}if(!g.options.entity){throw"Unable to write to RDFa, no entity given"}this._writeEntity(g.options.entity,g.options.element);g.resolve()},_readEntity:function(k){var j=this.getElementSubject(k);var l=this._getElementType(k);var g,m,f;var h=this._readEntityPredicates(j,k,false);for(g in h){m=h[g];if(!b.isArray(m)){continue}f=new this.vie.Collection();b.each(m,function(n){f.addOrUpdate({"@subject":n})});h[g]=f}h["@subject"]=j;if(l){h["@type"]=l}var i=new this.vie.Entity(h);i=this.vie.entities.addOrUpdate(i);this._registerEntityView(i,k);return i},_writeEntity:function(g,h){var f=this;this._findPredicateElements(this.getElementSubject(h),h,true).each(function(){var j=d(this);var i=f.getElementPredicate(j);if(!g.has(i)){return true}var k=g.get(i);if(k===f.readElementValue(i,j)){return true}f.writeElementValue(i,j,k)});return true},_getViewForElement:function(h,f){var g;d.each(this.views,function(){if(this.el.get(0)===h.get(0)){if(f&&!this.template){return true}g=this;return false}});return g},_registerEntityView:function(h,i){var f=this;var g=this._getViewForElement(i);if(g){return g}g=new this.vie.view.Entity({model:h,el:i,tagName:i.get(0).nodeName,vie:this.vie,service:this.name});this.views.push(g);b.each(h.attributes,function(l,j){var k=h.fromReference(h.get(j));if(k instanceof f.vie.Collection){d.each(f.getElementByPredicate(j,i),function(){f._registerCollectionView(k,d(this))})}});return g},_registerCollectionView:function(i,g){var f=this._getViewForElement(g,true);if(f){return f}var h=g.children(":first-child");f=new this.vie.view.Collection({collection:i,model:i.model,el:g,template:h,service:this,tagName:g.get(0).nodeName});this.views.push(f);return f},_getElementType:function(f){var g;if(d(f).attr("typeof")){g=d(f).attr("typeof");if(g.indexOf("://")!==-1){return"<"+g+">"}else{return g}}return null},getElementSubject:function(h){var f=this;if(typeof document!=="undefined"){if(h===document){return document.baseURI}}var g=undefined;d(h).closest(this.subjectSelector).each(function(){if(d(this).attr("about")!==undefined){g=d(this).attr("about");return true}if(d(this).attr("src")){g=d(this).attr("src");return true}if(d(this).attr("typeof")){g=c.Util.blankNodeID();return true}if(d(this).get(0).nodeName==="HTML"){d(this).find("base").each(function(){g=d(this).attr("href")})}});if(!g){return undefined}if(typeof g==="object"){return g}return(g.indexOf("_:")===0)?g:"<"+g+">"},setElementSubject:function(g,f){if(d(f).attr("src")){return d(f).attr("src",g)}return d(f).attr("about",g)},getElementPredicate:function(g){var f;f=g.attr("property");if(!f){f=g.attr("rel")}return f},getElementBySubject:function(h,g){var f=this;return d(g).find(this.subjectSelector).add(d(g).filter(this.subjectSelector)).filter(function(){if(f.getElementSubject(d(this))!==h){return false}return true})},getElementByPredicate:function(g,i){var f=this;var h=this.getElementSubject(i);return d(i).find(this.predicateSelector).add(d(i).filter(this.predicateSelector)).filter(function(){var j=f.getElementPredicate(d(this));if(f.vie.namespaces.curie(j)!==f.vie.namespaces.curie(g)){return false}if(f.getElementSubject(d(this))!==h){return false}return true})},_readEntityPredicates:function(h,g,j){var f=this;var i={};this._findPredicateElements(h,g,true).each(function(){var l=d(this);var k=f.getElementPredicate(l);var m=f.readElementValue(k,l);if(m===null&&!j){return}i[k]=m});if(d(g).get(0).tagName!=="HTML"){d(g).parent("[rev]").each(function(){i[d(this).attr("rev")]=f.getElementSubject(this)})}return i},_findPredicateElements:function(i,h,g){var f=this;return d(h).find(this.predicateSelector).add(d(h).filter(this.predicateSelector)).filter(function(){if(f.getElementSubject(this)!==i){return false}if(!g){if(!d(this).parents("[property]").length){return true}return false}return true})},readElementValue:function(g,i){var j=i.attr("content");if(j){return j}var l=i.attr("resource");if(l){return"<"+l+">"}var h=i.attr("href");if(h&&i.attr("rel")===g){return"<"+h+">"}if(i.attr("rel")){var k=[];var f=this;d(i).children(this.subjectSelector).each(function(){k.push(f.getElementSubject(this))});return k}return i.html()},writeElementValue:function(f,g,j){if(j instanceof Array&&j.length>0){j=j[0]}var h=g.attr("content");if(h){g.attr("content",j);return}var i=g.attr("resource");if(i){g.attr("resource",j)}g.html(j)},xmlns:function(g){var f;if(!g){if(typeof document==="undefined"){return{}}f=d(document)}else{f=d(g)}var h={};f.each(function(k,n){if(n.attributes&&n.attributes.getNamedItemNS){for(k=0;k<n.attributes.length;k+=1){var j=n.attributes[k];if(/^xmlns(:(.+))?$/.test(j.nodeName)){var m=/^xmlns(:(.+))?$/.exec(j.nodeName)[2]||"";var l=j.nodeValue;if(m===""||l!==""){h[m]=j.nodeValue}}}}});return h}};(function(){c.prototype.StanbolService=function(g){var h={name:"stanbol",url:"http://dev.iks-project.eu:8080/",defaultProxyUrl:"../utils/proxy/proxy.php",namespaces:{semdeski:"http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",semdeskf:"http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#",skos:"http://www.w3.org/2004/02/skos/core#",foaf:"http://xmlns.com/foaf/0.1/",opengis:"http://www.opengis.net/gml/",dbpedia:"http://dbpedia.org/ontology/",owl:"http://www.w3.org/2002/07/owl#",geonames:"http://www.geonames.org/ontology#",enhancer:"http://fise.iks-project.eu/ontology/",entityhub:"http://www.iks-project.eu/ontology/rick/model/",entityhub2:"http://www.iks-project.eu/ontology/rick/query/",rdf:"http://www.w3.org/1999/02/22-rdf-syntax-ns#",rdfschema:"http://www.w3.org/2000/01/rdf-schema#",dc:"http://purl.org/dc/terms/",foaf:"http://xmlns.com/foaf/0.1/",schema:"http://schema.org/",geo:"http://www.w3.org/2003/01/geo/wgs84_pos#",skos:"http://www.w3.org/2004/02/skos/core"}};this.options=d.extend(true,h,g?g:{});this.vie=null;this.name=this.options.name;this.connector=new f(this.options);d.ajaxSetup({converters:{"text application/rdf+json":function(i){return JSON.parse(i)}}})};c.prototype.StanbolService.prototype={init:function(){for(var g in this.options.namespaces){try{var i=this.options.namespaces[g];this.vie.namespaces.add(g,i)}catch(h){}}this.namespaces=new this.vie.Namespaces(this.vie.namespaces.base(),this.options.namespaces);this.rules=[{left:["?subject a <http://fise.iks-project.eu/ontology/EntityAnnotation>","?subject enhancer:entity-type ?type","?subject enhancer:confidence ?confidence","?subject enhancer:entity-reference ?entity","?subject dc:relation ?relation","?relation a <http://fise.iks-project.eu/ontology/TextAnnotation>","?relation enhancer:selected-text ?selected-text","?relation enhancer:selection-context ?selection-context","?relation enhancer:start ?start","?relation enhancer:end ?end"],right:["?entity a ?type","?entity enhancer:hasTextAnnotation ?relation","?entity enhancer:hasEntityAnnotation ?subject"]},{left:["?subject a dbpedia:Person","?subject rdfschema:label ?label"],right:function(j){return function(){return[d.rdf.triple(this.subject.toString(),"a","<"+j.base()+"Person>",{namespaces:j.toObj()}),d.rdf.triple(this.subject.toString(),"<"+j.base()+"name>",this.label,{namespaces:j.toObj()})]}}(this.namespaces)},{left:["?subject a foaf:Person","?subject rdfschema:label ?label"],right:function(j){return function(){return[d.rdf.triple(this.subject.toString(),"a","<"+j.base()+"Person>",{namespaces:j.toObj()}),d.rdf.triple(this.subject.toString(),"<"+j.base()+"name>",this.label,{namespaces:j.toObj()})]}}(this.namespaces)},{left:["?subject a dbpedia:Place","?subject rdfschema:label ?label"],right:function(j){return function(){return[d.rdf.triple(this.subject.toString(),"a","<"+j.base()+"Place>",{namespaces:j.toObj()}),d.rdf.triple(this.subject.toString(),"<"+j.base()+"name>",this.label.toString(),{namespaces:j.toObj()})]}}(this.namespaces)},];this.vie.types.addOrOverwrite("enhancer:EntityAnnotation",[]).inherit("Thing");this.vie.types.addOrOverwrite("enhancer:TextAnnotation",[]).inherit("Thing");this.vie.types.addOrOverwrite("enhancer:Enhancement",[]).inherit("Thing")},analyze:function(m){var g=this;var i=m instanceof this.vie.Analyzable;if(!i){throw"Invalid Analyzable passed"}var j=m.options.element?m.options.element:d("body");var l=g._extractText(j);if(l.length>0){var g=this;var k=function(n){b.defer(function(){var o=g._enhancer2Entities(g,n);m.resolve(o)})};var h=function(n){m.reject(n)};this.connector.analyze(l,k,h)}else{console.warn("No text found in element.");m.resolve([])}},find:function(l){var j=l instanceof this.vie.Findable;if(!j){throw"Invalid Findable passed"}var g=this;var k=escape(l.options.term);if(!k){console.warn("StanbolConnector: No term to look for!");l.resolve([])}var h=(typeof l.options.limit==="undefined")?20:l.options.limit;var n=(typeof l.options.offset==="undefined")?0:l.options.offset;var m=function(o){b.defer(function(){var p=g._enhancer2Entities(g,o);l.resolve(p)})};var i=function(o){l.reject(o)};this.connector.find(k,h,n,m,i)},load:function(l){var j=l instanceof this.vie.Loadable;if(!j){throw"Invalid Loadable passed"}var g=this;var h=l.options.entity;if(!h){console.warn("StanbolConnector: No entity to look for!");l.resolve([])}var k=function(m){b.defer(function(){var n=g._enhancer2Entities(g,m);l.resolve(n)})};var i=function(m){l.reject(m)};this.connector.load(h,k,i)},_extractText:function(h){if(h.get(0)&&h.get(0).tagName&&(h.get(0).tagName=="TEXTAREA"||h.get(0).tagName=="INPUT"&&h.attr("type","text"))){return h.get(0).val()}else{var g=h.text().replace(/\s+/g," ").replace(/\0\b\n\r\f\t/g,"");return d.trim(g)}},_enhancer2Entities:function(h,l){if(typeof d.rdf!=="function"){return this._enhancer2EntitiesNoRdfQuery(h,l)}var k=d.rdf().load(l,{});if(h.rules){var o=d.rdf.ruleset();for(var m in h.namespaces.toObj()){if(m!==""){o.prefix(m,h.namespaces.get(m))}}for(var j=0;j<h.rules.length;j++){o.add(h.rules[j]["left"],h.rules[j]["right"])}k=k.reason(o,10)}var n={};k.where("?subject ?property ?object").each(function(){var p=this.subject.toString();if(!n[p]){n[p]={"@subject":p,"@context":h.namespaces.toObj(),"@type":[]}}var r=this.property.toString();var s;r=r.substring(1,r.length-1);try{property=d.createCurie(r,{namespaces:h.namespaces.toObj()})}catch(q){property=r;console.warn(r+" doesn't have a namespace definition in '",h.namespaces.toObj())}n[p][property]=n[p][property]||[];function i(t){if(typeof t.value==="string"){if(t.lang){return t.toString()}else{return t.value}return t.value.toString()}else{if(t.type==="uri"){return t.toString()}else{return t.value}}}n[p][property].push(i(this.object))});b(n).each(function(i){i["@type"]=i["@type"].concat(i["rdf:type"]);delete i["rdf:type"];b(i).each(function(q,p){if(q.length===1){i[p]=q[0]}})});var g=[];d.each(n,function(){var i=new h.vie.Entity(this);i=h.vie.entities.addOrUpdate(i);g.push(i)});return g},_enhancer2EntitiesNoRdfQuery:function(g,h){jsonLD=[];b.forEach(h,function(k,j){var i={};i["@subject"]="<"+j+">";b.forEach(k,function(m,l){l="<"+l+">";b.forEach(m,function(n){if(n.type==="uri"){n.value="<"+n.value+">"}if(i[l]&&!b.isArray(i[l])){i[l]=[i[l]]}if(b.isArray(i[l])){i[l].push(n.value);return}i[l]=n.value})});jsonLD.push(i)});return jsonLD}};var f=function(g){this.options=g;this.baseUrl=g.url.replace(/\/$/,"");this.enhancerUrlPrefix="/engines";this.entityhubUrlPrefix="/entityhub"};f.prototype={analyze:function(l,k,i,h){if(!h){h={}}var g=this.baseUrl+this.enhancerUrlPrefix;var m=this._proxyUrl();var j=h.format||"application/rdf+json";if(typeof exports!=="undefined"&&typeof process!=="undefined"){return this.analyzeNode(g,l,k,i,h,j)}d.ajax({success:function(n){k(n)},error:i,type:"POST",url:m||g,data:(m)?{proxy_url:g,content:l,verb:"POST",format:j}:l,dataType:j,contentType:m?undefined:"text/plain",accepts:{"application/rdf+json":"application/rdf+json"}})},analyzeNode:function(i,n,m,h,g,l){var k=require("request");var j=k({method:"POST",uri:i,body:n,headers:{Accept:l}},function(q,p,o){m({results:JSON.parse(o)})});j.end()},load:function(j,l,i,h){if(!h){h={}}j=j.replace(/^</,"").replace(/>$/,"");var g=this.baseUrl+this.entityhubUrlPrefix+"/sites/entity?id="+escape(j);var m=this._proxyUrl();var k=h.format||"application/rdf+json";d.ajax({success:function(n){l(n)},error:i,type:(m)?"POST":"GET",url:m||g,data:(m)?{proxy_url:g,content:"",verb:"GET",format:k}:null,dataType:k,contentType:m?undefined:"text/plain",accepts:{"application/rdf+json":"application/rdf+json"}})},find:function(h,i,j,n,k,o){if(!o){o={}}if(j==null){j=0}if(i==null){i=10}var g=this.baseUrl+this.entityhubUrlPrefix+"/sites/find";var m=this._proxyUrl();var l=o.format||"application/rdf+json";d.ajax({success:function(p){n(p)},error:k,type:"POST",url:m||g,data:(m)?{proxy_url:g,content:{name:h,limit:i,offset:j},verb:"POST",format:l,type:"text/plain"}:"name="+h+"&limit="+i+"&offset="+j,dataType:l,accepts:{"application/rdf+json":"application/rdf+json"}})},_proxyUrl:function(){this.proxyUrl="";if(this.baseUrl.indexOf(":")!==-1&&!this.options.proxyDisabled){return this.options.proxyUrl||this.options.defaultProxyUrl}else{return""}}}})();if(!c.prototype.view){c.prototype.view={}}c.prototype.view.Collection=e.View.extend({initialize:function(){this.template=this.options.template;this.service=this.options.service;if(!this.service){throw"No RDFa service provided to the Collection View"}this.entityViews={};b.bindAll(this,"addItem","removeItem","refreshItems");this.collection.bind("add",this.addItem);this.collection.bind("remove",this.removeItem);var f=this;this.collection.forEach(function(g){f.registerItem(g,f.collection)})},addItem:function(h,j){if(j!==this.collection){return}if(!this.template||this.template.length===0){return}var g=this.service._registerEntityView(h,this.cloneElement(this.template));var i=g.render().el;if(h.id){this.service.setElementSubject(h.getSubjectUri(),i)}this.el.append(i);var f=this.service;d(i).parent("[rev]").each(function(){var k=d(this).attr("rev");var l={};l[k]=new f.vie.Collection();l[k].addOrUpdate(f.vie.entities.get(f.getElementSubject(this)));h.set(l)});this.trigger("add",g);this.entityViews[h.cid]=g;i.show()},registerItem:function(g,i){var h=this.service.getElementBySubject(g.id,this.el);if(!h){return}var f=this.service._registerEntityView(g,h);this.entityViews[g.cid]=f},removeItem:function(f){if(!this.entityViews[f.cid]){return}this.trigger("remove",this.entityViews[f.cid]);this.entityViews[f.cid].el.remove();delete (this.entityViews[f.cid])},refreshItems:function(g){var f=this;d(this.el).empty();g.forEach(function(h){f.addItem(h,g)})},cloneElement:function(h){var i=d(h).clone(false);var f=this.service;if(typeof i.attr("about")!=="undefined"){i.attr("about","")}i.find("[about]").attr("about","");var g=this.service.getElementSubject(i);f._findPredicateElements(g,i,false).each(function(){f.writeElementValue(null,d(this),"")});return i}});if(!c.prototype.view){c.prototype.view={}}c.prototype.view.Entity=e.View.extend({initialize:function(f){this.service=f.service?f.service:"rdfa";this.vie=f.vie;b.bindAll(this,"render");this.model.bind("change",this.render)},render:function(){this.vie.save({element:this.el,entity:this.model}).to(this.service).execute();return this}})})();
+(function(){var root = this,
+    jQuery = root.jQuery,
+    Backbone = root.Backbone,
+    _ = root._;
+
+var VIE = root.VIE = function(config) {
+    this.config = (config) ? config : {};
+    this.services = {};
+    this.entities = new this.Collection();
+
+    this.Entity.prototype.entities = this.entities;
+    this.entities.vie = this;
+    this.Entity.prototype.entityCollection = this.Collection;
+    this.Entity.prototype.vie = this;
+
+    this.defaultProxyUrl = (this.config.defaultProxyUrl) ? this.config.defaultProxyUrl : "../utils/proxy/proxy.php";
+    
+    this.Namespaces.prototype.vie = this;
+    this.namespaces = new this.Namespaces(
+        (this.config.defaultNamespace) ? this.config.defaultNamespace : "http://ontology.vie.js/"
+    );
+    
+    this.Type.prototype.vie = this;
+    this.Types.prototype.vie = this;
+    this.Attribute.prototype.vie = this;
+    this.Attributes.prototype.vie = this;
+    this.types = new this.Types();
+    this.types.add("Thing");
+
+    if (this.config.classic !== false) {
+        // Load Classic API as well
+        this.RDFa = new this.ClassicRDFa(this);
+        this.RDFaEntities = new this.ClassicRDFaEntities(this);
+        this.EntityManager = new this.ClassicEntityManager(this);
+
+        this.cleanup = function() {
+            this.entities.reset();
+        };
+    }
+};
+
+VIE.prototype.use = function(service, name) {
+  if (!name) {
+    name = service.name;
+  }
+  service.vie = this;
+  service.name = name;
+  if (service.init) {
+      service.init();
+  }
+  this.services[name] = service;
+};
+
+VIE.prototype.service = function(name) {
+  if (!this.services[name]) {
+    throw "Undefined service " + name;
+  }
+  return this.services[name];
+};
+
+VIE.prototype.getServicesArray = function() {
+  var res = [];
+  _.each(this.services, function(service, i){res.push(service);});
+  return res;
+};
+
+// Declaring the ..able classes
+// Loadable
+VIE.prototype.load = function(options) {
+  if (!options) { options = {}; }
+  options.vie = this;
+  return new this.Loadable(options);
+};
+
+
+
+// Savable
+VIE.prototype.save = function(options) {
+  if (!options) { options = {}; }
+  options.vie = this;
+  return new this.Savable(options);
+};
+
+
+// Removable
+VIE.prototype.remove = function(options) {
+  if (!options) { options = {}; }
+  options.vie = this;
+  return new this.Removable(options);
+};
+
+
+// Analyzable
+VIE.prototype.analyze = function(options) {
+  if (!options) { options = {}; }
+  options.vie = this;
+  return new this.Analyzable(options);
+};
+
+
+// Findable
+VIE.prototype.find = function(options) {
+  if (!options) { options = {}; }
+  options.vie = this;
+  return new this.Findable(options);
+};
+
+
+if(typeof exports === 'object') {
+    // Running under Node.js or other CommonJS environment
+    exports.VIE = VIE;
+
+    if (!jQuery) {
+        jQuery = require('jquery');
+    }
+    if (!Backbone) {
+        Backbone = require('backbone');
+    }
+    if (!_) {
+        _ = require('underscore')._;
+    }
+}
+
+VIE.prototype.Able = function(){
+};
+    // takes a list of services or just one
+VIE.prototype.Able.prototype = {
+    using: function(services) {
+        var service = this;
+        if ( services instanceof Array ) {
+            _(services).each(function(s){
+                service._using(s);
+            });
+        } else {
+            var s = services;
+            service._using(s);
+        }
+        return this;
+    },
+    _using: function(service) {
+        var serviceObj = typeof service === "string" ? this.vie.service(service) : service;
+        this.services.push(serviceObj);
+        return this;
+    },
+    init: function(options, methodName) {
+        this.methodName = methodName;
+        this.options = options;
+        this.services = options.from || options.using || options.to || [];
+        this.vie = options.vie;
+        this.deferred = jQuery.Deferred();
+
+        // Public deferred-methods
+        this.resolve = this.deferred.resolve;
+        this.resolveWith = this.deferred.resolveWith;
+        this.reject = this.deferred.reject;
+        this.rejectWith = this.deferred.rejectWith;
+
+        // Synonyms
+        this.success = this.done = this.deferred.done;
+        this.fail = this.deferred.fail;
+        this.then = this.deferred.then; // Takes 2 arguments, successCallbacks, failCallbacks
+        this.always = this.deferred.always;
+        this.from = this.using;
+        this.to = this.using;
+    },
+    // Running the actual method
+    execute: function() {
+        // call service.load
+        var able = this;
+        _(this.services).each(function(service){
+            service[able.methodName](able);
+        });
+        return this;
+    }
+};
+
+VIE.prototype.Loadable = function (options) {
+    this.init(options,"load");
+};
+VIE.prototype.Loadable.prototype = new VIE.prototype.Able();
+
+VIE.prototype.Savable = function(options){
+    this.init(options, "save");
+};
+VIE.prototype.Savable.prototype = new VIE.prototype.Able();
+
+VIE.prototype.Removable = function(options){
+    this.init(options, "remove");
+};
+VIE.prototype.Removable.prototype = new VIE.prototype.Able();
+
+VIE.prototype.Analyzable = function (options) {
+    this.init(options, "analyze");
+};
+VIE.prototype.Analyzable.prototype = new VIE.prototype.Able();
+
+VIE.prototype.Findable = function (options) {
+    this.init(options, "find");
+};
+
+VIE.prototype.Findable.prototype = new VIE.prototype.Able();
+
+// File:   Util.js <br />
+// Author: <a href="http://github.com/neogermi/">Sebastian Germesin</a>
+//
+
+// Utilities for the day-to-day VIE.js usage
+
+// extension to jQuery to compare two arrays on equality
+// found: <a href="http://stackoverflow.com/questions/1773069/using-jquery-to-compare-two-arrays">http://stackoverflow.com/questions/1773069/using-jquery-to-compare-two-arrays</a>
+jQuery.fn.compare = function(t) {
+    if (this.length !== t.length) { return false; }
+    var a = this.sort(),
+        b = t.sort();
+    for (var i = 0; t[i]; i++) {
+        if (a[i] !== b[i]) { 
+                return false;
+        }
+    }
+    return true;
+};
+
+// Extension to the JS native Array implementation to remove values from an array.
+// from: <a href="http://sebastian.germes.in/blog/2011/09/javascripts-missing-array-remove-function/">http://sebastian.germes.in/blog/2011/09/javascripts-missing-array-remove-function/</a>
+if (!Array.prototype.remove) {
+  Array.prototype.remove = function () {
+    var args = this.remove.arguments;
+    var i;
+
+    if (args[0] && args[0] instanceof Array) {
+      var a = args[0];
+      for (i = 0; i < a.length; i++) {
+        this.remove(a[i]);
+      }
+    } else {
+      for (i = 0; i < args.length; i++) {
+        while(true) {
+          var index = this.indexOf(args[i]);
+          if (index !== -1) {
+            this.splice(index, 1);
+          } else {
+            break;
+          }
+        }
+      }
+    }
+  return this;
+  };
+}
+
+//Extension to the JS native Array implementation to remove duplicates from an array.
+//This actually leaves the original Array untouched and returns a copy with no duplicates.
+if (!Array.prototype.unduplicate) {
+	Array.prototype.unduplicate = function () {
+	    var sorted_arr = this.sort();
+	    var results = [];
+	    for (var i = 0; i < sorted_arr.length; i++) {
+	        if (i === sorted_arr.length-1 || sorted_arr[i] !== sorted_arr[i+1]) {
+	            results.push(sorted_arr[i]);
+	        }
+	    }
+	    return results;
+	};
+} 
+
+
+VIE.Util = {
+		// converts a given URI into a CURIE (or save CURIE), based
+		// on the given VIE.Namespaces object.
+	toCurie : function (uri, safe, namespaces) {
+        if (VIE.Util.isCurie(uri, namespaces)) {
+            return uri;
+        }
+        var delim = ":";
+        for (var k in namespaces.toObj()) {
+            if (uri.indexOf(namespaces.get(k)) === 1) {
+                var pattern = new RegExp("^" + "<" + namespaces.get(k));
+                if (k === '') {
+                    delim = '';
+                }
+                return ((safe)? "[" : "") + 
+                        uri.replace(pattern, k + delim).replace(/>$/, '') +
+                        ((safe)? "]" : "");
+            }
+        }
+        throw new Error("No prefix found for URI '" + uri + "'!");
+    },
+
+	// checks, whether the given string is a CURIE.
+    isCurie : function (something, namespaces) {
+        try {
+            VIE.Util.toUri(something, namespaces);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    },
+
+	// converts a given CURIE (or save CURIE) into a URI, based
+	// on the given VIE.Namespaces object.
+    toUri : function (curie, namespaces) {
+        var delim = ":";
+        for (var k in namespaces.toObj()) {
+            if (k !== "" && (curie.indexOf(k) === 0 || curie.indexOf(k) === 1)) {
+                var pattern = new RegExp("^" + "\\[{0,1}" + k + delim);
+                return "<" + curie.replace(pattern, namespaces.get(k)).replace(/\]{0,1}$/, '') + ">";
+            }
+        }
+        //default:
+        if (curie.indexOf(delim) === -1 && namespaces.base()) {
+            return "<" + namespaces.base() + curie + ">";
+        }
+        throw new Error("No prefix found for CURIE '" + curie + "'!");
+    },
+    
+    // checks, whether the given string is a URI.
+    isUri : function (something) {
+        return (typeof something === "string" && something.search(/^<.+:.+>$/) === 0);
+    },
+    
+    _blankNodeSeed : new Date().getTime() % 1000,
+    
+    blankNodeID : function () {
+      this._blankNodeSeed += 1;
+      return '_:bnode' + this._blankNodeSeed.toString(16);
+    }    
+    
+};
+VIE.prototype.Entity = function(attrs, opts) {
+
+    var self = this;
+
+    var mapAttributeNS = function (attr, ns) {
+        var a = attr;
+        if (ns.isUri (attr) || attr.indexOf('@') === 0) {
+            //ignore
+        } else if (ns.isCurie(attr)) {
+            a = ns.uri(attr);
+        } else if (!ns.isUri(attr)) {
+            if (attr.indexOf(":") === -1) {
+                a = '<' + ns.base() + attr + '>';
+            } else {
+                a = '<' + attr + '>';
+            }
+        }
+        return a;
+    };
+
+    if ('@type' in attrs) {
+        if (_.isArray(attrs['@type'])) {
+            attrs['@type'] = _.map(attrs['@type'], function(val){
+                if (this.types.get(val)) {
+                    return this.types.get(val).id;
+                }
+                else {
+                    return val;
+                }
+            }, self.vie);
+        }
+        else if (typeof attrs['@type'] === 'string') {
+            if (self.vie.types.get(attrs['@type'])) {
+                attrs['@type'] = self.vie.types.get(attrs['@type']).id;
+            }
+        }
+    } else {
+        // provide "Thing" as the default type if none was given
+        attrs['@type'] = self.vie.types.get("Thing").id;
+    }
+
+    //the following provides full seamless namespace support
+    //for attributes. It should not matter, if you
+    //query for `model.get('name')` or `model.get('foaf:name')`
+    //or even `model.get('http://xmlns.com/foaf/0.1/name');`
+    //However, if we just overwrite `set()` and `get()`, this
+    //raises a lot of side effects, so we need to expand
+    //the attributes before we create the model.
+    attrs = (attrs) ? attrs : {};
+    _.each (attrs, function (value, key) {
+        var newKey = mapAttributeNS(key, this.namespaces);
+        if (key !== newKey) {
+            delete attrs[key];
+            attrs[newKey] = value;
+        }
+    }, self.vie);
+
+    var Model = Backbone.Model.extend({
+        idAttribute: '@subject',
+
+        initialize: function(attributes, options) {
+            if (attributes['@subject']) {
+                this.id = this['@subject'] = this.toReference(attributes['@subject']);
+            }
+            return this;
+        },
+
+        get: function (attr) {
+            attr = mapAttributeNS(attr, self.vie.namespaces);
+            var value = Backbone.Model.prototype.get.call(this, attr);
+            if (_.isArray(value)) {
+                value = _.map(value, function(v) {
+                    if (attr === '@type' && self.vie.types.get(v)) {
+                        return self.vie.types.get(v);
+                    } else if (self.vie.entities.get(v)) {
+                        return self.vie.entities.get(v);
+                    } else {
+                        return v;
+                    }
+                }, this);
+            } else {
+                if (typeof value !== "string") {
+                    return value;
+                }
+
+                if (attr === '@type' && self.vie.types.get(value)) {
+                    value = self.vie.types.get(value);
+                } else if (self.vie.entities.get(value)) {
+                    value = self.vie.entities.get(value);
+                }
+            }
+            return value;
+        },
+
+        has: function(attr) {
+            attr = mapAttributeNS(attr, self.vie.namespaces);
+            return Backbone.Model.prototype.has.call(this, attr);
+        },
+
+        set : function(attrs, options) {
+            if (!attrs) {
+                return this;
+            }
+            if (attrs.attributes) {
+                attrs = attrs.attributes;
+            }
+            _.each (attrs, function (value, key) {
+                var newKey = mapAttributeNS(key, self.vie.namespaces);
+                if (key !== newKey) {
+                    delete attrs[key];
+                    attrs[newKey] = value;
+                }
+            }, this);
+            _.each (attrs, function (value, key) {
+               if (key.indexOf('@') === -1) {
+                   if (typeof value === "object" &&
+                       !jQuery.isArray(value) &&
+                       !value.isCollection) {
+                       var child = new self.vie.Entity(value, options);
+                       self.vie.entities.addOrUpdate(child);
+                       attrs[key] = child.getSubject();
+                   } else if (value.isCollection) {
+                       //attrs[key] = [];
+                       value.each(function (child) {
+                           self.vie.entities.addOrUpdate(child);
+                           //attrs[key].push(child.getSubject());
+                       });
+                   }
+               }
+            }, this);
+            return Backbone.Model.prototype.set.call(this, attrs, options);
+        },
+
+        unset: function (attr, opts) {
+            attr = mapAttributeNS(attr, self.vie.namespaces);
+            return Backbone.Model.prototype.unset.call(this, attr, opts);
+        },
+
+        getSubject: function(){
+            if (typeof this.id === "undefined") {
+                this.id = this.attributes[this.idAttribute];
+            }
+            if (typeof this.id === 'string') {
+                if (this.id.substr(0, 7) === 'http://' || this.id.substr(0, 4) === 'urn:') {
+                    return this.toReference(this.id);
+                }
+                return this.id;
+            }
+            return this.cid.replace('c', '_:bnode');
+        },
+
+        getSubjectUri: function(){
+            return this.fromReference(this.getSubject());
+        },
+
+        isReference: function(uri){
+            var matcher = new RegExp("^\\<([^\\>]*)\\>$");
+            if (matcher.exec(uri)) {
+                return true;
+            }
+            return false;
+        },
+
+        toReference: function(uri){
+            if (typeof uri !== "string") {
+                return uri;
+            }
+            if (this.isReference(uri)) {
+                return uri;
+            }
+            return '<' + uri + '>';
+        },
+
+        fromReference: function(uri){
+            if (typeof uri !== "string") {
+                return uri;
+            }
+            if (!this.isReference(uri)) {
+                return uri;
+            }
+            return uri.substring(1, uri.length - 1);
+        },
+
+        as: function(encoding){
+            if (encoding === "JSON") {
+                return this.toJSON();
+            }
+            if (encoding === "JSONLD") {
+                return this.toJSONLD();
+            }
+            throw new Error("Unknown encoding " + encoding);
+        },
+
+        toJSONLD: function(){
+            var instanceLD = {};
+            var instance = this;
+            _.each(instance.attributes, function(value, name){
+                var entityValue = value; //instance.get(name);
+
+                if (name === '@type' && typeof entityValue === 'object') {
+                    entityValue = entityValue.id;
+                }
+
+                if (value instanceof instance.vie.Collection) {
+                    entityValue = value.map(function(instance) {
+                        return instance.getSubject();
+                    });
+                }
+
+                // TODO: Handle collections separately
+                instanceLD[name] = entityValue;
+            });
+
+            instanceLD['@subject'] = instance.getSubject();
+
+            return instanceLD;
+        },
+
+        setOrAdd: function (arg1, arg2) {
+            var entity = this;
+            if (typeof arg1 === "string" && arg2) {
+                // calling entity.setOrAdd("rdfs:type", "example:Musician")
+                entity._setOrAddOne(arg1, arg2);
+            }
+            else
+                if (typeof arg1 === "object") {
+                    // calling entity.setOrAdd({"rdfs:type": "example:Musician", ...})
+                    _(arg1).each(function(val, key){
+                        entity._setOrAddOne(key, val);
+                    });
+                }
+            return this;
+        },
+
+        _setOrAddOne: function (attr, value) {
+            var obj;
+            attr = mapAttributeNS(attr, self.vie.namespaces);
+            var val = Backbone.Model.prototype.get.call(this, attr);
+
+            // No value yet, use the set method
+            if (!val) {
+                obj = {};
+                obj[attr] = value;
+                this.set(obj);
+            }
+            else {
+                if (!(val instanceof Array)) {
+                    val = [val];
+                }
+                // Make sure not to set the same value twice
+                var contains = false;
+                for (var v = 0; v < val.length; v++) {
+                    if (typeof val[v] === "string") {
+                        contains |= val[v] == value;
+                    } else {
+                        contains |= val[v].id == value;
+                    }
+                }
+                if (!contains) {
+                    val.push(value);
+                    obj = {};
+                    obj[attr] = val;
+                    this.set(obj);
+                }
+            }
+        },
+
+        hasType: function(type){
+            type = self.vie.types.get(type);
+            return this.hasPropertyValue("@type", type);
+        },
+
+        hasPropertyValue: function(property, value) {
+            var t = this.get(property);
+            if (!(value instanceof Object)) {
+                value = self.vie.entities.get(value);
+            }
+            if (t instanceof Array) {
+                return t.indexOf(value) !== -1;
+            }
+            else {
+                return t === value;
+            }
+        },
+
+        isof: function (type) {
+            var types = this.get('@type');
+            
+            if (types === undefined) {
+                return false;
+            }
+            types = (_.isArray(types))? types : [ types ];
+            
+            type = (self.vie.types.get(type))? self.vie.types.get(type) : new self.vie.Type(type);
+            for (var t = 0; t < types.length; t++) {
+                if (self.vie.types.get(types[t])) {
+                    if (self.vie.types.get(types[t]).isof(type)) {
+                        return true;
+                    }
+                } else {
+                    var typeTmp = new self.vie.Type(types[t]);
+                    if (typeTmp.id === type.id) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        },
+
+        isEntity: true,
+
+        vie: self.vie
+    });
+
+    return new Model(attrs, opts);
+};
+VIE.prototype.Collection = Backbone.Collection.extend({
+    model: VIE.prototype.Entity,
+    
+    get: function(id) {
+        if (id === null) {
+            return null;
+        }
+        
+        id = (id.getSubject)? id.getSubject() : id;        
+        if (typeof id === "string" && id.indexOf("_:") === 0) {
+            if (id.indexOf("bnode") === 2) {
+                //bnode!
+                id = id.replace("_:bnode", 'c');
+                return this._byCid[id];
+            } else {
+                return this._byId["<" + id + ">"];
+            }
+        } else {
+            id = this.toReference(id);
+            return this._byId[id];
+        }
+    },
+
+    addOrUpdate: function(model) {
+        var collection = this;
+        var existing;
+        if (_.isArray(model)) {
+            var entities = [];
+            _.each(model, function(item) {
+                entities.push(collection.addOrUpdate(item));
+            });
+            return entities;
+        }
+
+        if (!model.isEntity) {
+            model = new this.model(model);
+        }
+
+        if (model.id && this.get(model.id)) {
+            existing = this.get(model.id);
+        }
+        if (this.getByCid(model.cid)) {
+            var existing = this.getByCid(model.cid);
+        }
+        if (existing) {
+            var newAttribs = {};
+            _.each(model.attributes, function(value, attribute) {
+                if (!existing.has(attribute)) {
+                    newAttribs[attribute] = value;
+                    return true;
+                }
+                if (existing.get(attribute) === value) {
+                    return true;
+                }
+                newAttribs[attribute] = value;
+            });
+
+            if (!_.isEmpty(newAttribs)) {
+                existing.set(newAttribs);
+            }
+            return existing;
+        }
+
+        this.add(model);
+        return model;
+    },
+
+    isReference: function(uri){
+        var matcher = new RegExp("^\\<([^\\>]*)\\>$");
+        if (matcher.exec(uri)) {
+            return true;
+        }
+        return false;
+    },
+        
+    toReference: function(uri){
+        if (this.isReference(uri)) {
+            return uri;
+        }
+        return '<' + uri + '>';
+    },
+        
+    fromReference: function(uri){
+        if (!this.isReference(uri)) {
+            return uri;
+        }
+        return uri.substring(1, uri.length - 1);
+    },
+    
+    isCollection: true
+});
+// File:   Type.js <br />
+// Author: <a href="http://github.com/neogermi/">Sebastian Germesin</a>
+//
+
+// Adding capability of handling type/class structure and inheritance to VIE. 
+if (VIE.prototype.Type) {
+	throw new Error("ERROR: VIE.Type is already defined. Please check your installation!");
+}
+if (VIE.prototype.Types) {
+	throw new Error("ERROR: VIE.Types is already defined. Please check your installation!");
+}
+
+// The constructor of a VIE.Type. 
+//Usage: ``var personType = new vie.Type("Person", []).inherit("Thing");``
+// This creates a type person in the base namespace that has no attributes
+// but inherits from the type "Thing". 
+VIE.prototype.Type = function (id, attrs) {
+    if (id === undefined || typeof id !== 'string') {
+        throw "The type constructor needs an 'id' of type string! E.g., 'Person'";
+    }
+
+    this.id = this.vie.namespaces.isUri(id) ? id : this.vie.namespaces.uri(id);
+
+    // checks whether such a type is already defined. 
+    if (this.vie.types.get(this.id)) {
+        throw new Error("The type " + this.id + " is already defined!");
+    }    
+    
+    // the supertypes (parentclasses) of the current type.
+    this.supertypes = new this.vie.Types();
+    // the subtypes (childclasses) of the current type.
+    this.subtypes = new this.vie.Types();
+    
+    // the given attributes as a `vie.Attributes` element.
+    this.attributes = new this.vie.Attributes(this, (attrs)? attrs : []);
+    
+    // checks whether the current type inherits of the
+    // given type, e.g.,: ``personType.isof("Thing");``
+    // would evaluate to `true`.
+    // We can either pass a type object or a string that
+    // represents the id of the type.
+    this.isof = function (type) {
+        type = this.vie.types.get(type);
+        if (type) {
+            return type.subsumes(this.id);
+        } else {
+            throw new Error("No valid type given");
+        }
+    };
+    
+    // checks whether the current type subsumes the
+    // given type, e.g.,: ``thingType.subsumes("Person");``
+    // would evaluate to `true`.
+    // We can either pass a type object or a string that
+    // represents the id of the type.
+    this.subsumes = function (type) {
+        type = this.vie.types.get(type);
+        if (type) {
+            if (this.id === type.id) {
+                return true;
+            }
+            var subtypes = this.subtypes.list();
+            for (var c = 0; c < subtypes.length; c++) {
+                var childObj = subtypes[c];
+                if (childObj) {
+                     if (childObj.id === type.id || childObj.subsumes(type)) {
+                         return true;
+                     }
+                }
+            }
+            return false;
+        } else {
+            throw new Error("No valid type given");
+        }
+    };
+    
+    //inherit all attributes from the supertype (recursively).
+    //we can either pass a string (id) of the supertype, the
+    //supertype itself or an array of both.
+    this.inherit = function (supertype) {
+        if (typeof supertype === "string") {
+            this.inherit(this.vie.types.get(supertype));
+        }
+        else if (supertype instanceof this.vie.Type) {
+            supertype.subtypes.addOrOverwrite(this);
+            this.supertypes.addOrOverwrite(supertype);
+            try {
+                // only for validation of attribute-inheritance!
+                // if this throws an error (inheriting two attributes
+                // that cannot be combined) we reverse all changes. 
+                this.attributes.list();
+            } catch (e) {
+                supertype.subtypes.remove(this);
+                this.supertypes.remove(supertype);
+                throw e;
+            }
+        } else if (jQuery.isArray(supertype)) {
+            for (var i = 0; i < supertype.length; i++) {
+                this.inherit(supertype[i]);
+            }
+        } else {
+            throw new Error("Wrong argument in VIE.Type.inherit()");
+        }
+        return this;
+    };
+        
+    // serializes the hierarchy of child types into an
+    // object.
+    this.hierarchy = function () {
+        var obj = {id : this.id, subtypes: []};
+        var list = this.subtypes.list();
+        for (var c = 0; c < list.length; c++) {
+            var childObj = this.vie.types.get(list[c]);
+            obj.subtypes.push(childObj.hierarchy());
+        }
+        return obj;
+    };
+
+    this.instance = function (attrs, opts) {
+        attrs = (attrs)? attrs : {};
+
+        for (var a in attrs) {
+            if (a.indexOf('@') !== 0 && !this.attributes.get(a)) {
+                throw new Error("Cannot create an instance of " + this.id + " as the type does not allow an attribute '" + a + "'!");
+            }
+        }
+
+        attrs['@type'] = this.id;
+
+        return new this.vie.Entity(attrs, opts);
+    };
+        
+    // returns the id of the type.
+    this.toString = function () {
+        return this.id;
+    };
+    
+    
+    
+};
+
+//basically a convenience class that represents a list of `VIE.Type`s.
+//var types = new vie.Types();
+VIE.prototype.Types = function () {
+        
+    this._types = {};
+    
+    //Adds a `VIE.Type` to the types.
+    //This throws an exception if a type with the given id
+    //already exists.
+    this.add = function (id, attrs) {
+        if (this.get(id)) {
+            throw "Type '" + id + "' already registered.";
+        } 
+        else {
+            if (typeof id === "string") {
+                var t = new this.vie.Type(id, attrs);
+                this._types[t.id] = t;
+                return t;
+            } else if (id instanceof this.vie.Type) {
+            	this._types[id.id] = id;
+                return id;
+            } else {
+                throw new Error("Wrong argument to VIE.Types.add()!");
+            }
+        }
+    };
+    
+    //This is the same as ``this.remove(id); this.add(id, attrs);``
+    this.addOrOverwrite = function(id, attrs){
+        if (this.get(id)) {
+            this.remove(id);
+        }
+        return this.add(id, attrs);
+    };
+    
+    //Retrieve a type by either it's id or by the type itself
+    //(for convenience issues).
+    //Returnes **undefined** if no type has been found.
+    this.get = function (id) {
+        if (!id) {
+            return undefined;
+        }
+        if (typeof id === 'string') {
+            var lid = this.vie.namespaces.isUri(id) ? id : this.vie.namespaces.uri(id);
+            return this._types[lid];
+        } else if (id instanceof this.vie.Type) {
+            return this.get(id.id);
+        }
+        return undefined;
+    };
+    
+    //Removes a type of given id from the type. This also
+    // removes all children if their only parent were this
+    //type. Furthermore, this removes the link from the
+    //super- and subtypes.
+    this.remove = function (id) {
+        var t = this.get(id);
+        if (!t) {
+            return this;
+        }
+        delete this._types[t.id];
+        
+        var subtypes = t.subtypes.list();
+        for (var c = 0; c < subtypes.length; c++) {
+            var childObj = subtypes[c];
+            if (childObj.supertypes.list().length === 1) {
+                //recursively remove all children 
+                //that inherit only from this type
+                this.remove(childObj);
+            } else {
+                childObj.supertypes.remove(t.id);
+            }
+        }
+        return t;
+    };
+    
+    //returns an array of all types.
+    this.toArray = this.list = function () {
+        var ret = [];
+        for (var i in this._types) {
+            ret.push(this._types[i]);
+        }
+        return ret;
+    };
+    
+    //Sorts an array of types in their order, given by the
+    //inheritance. If 'desc' is given and 'true', the sorted
+    //array will be in descendant order.
+    this.sort = function (types, desc) {
+        var self = this;
+        var copy = $.merge([], ($.isArray(types))? types : [ types ]);
+        desc = (desc)? true : false;
+        
+        for (var x = 0; x < copy.length; x++) {
+            var a = copy.shift();
+            var idx = 0;
+            for (var y = 0; y < copy.length; y++) {
+                var b = self.vie.types.get(copy[y]);                
+                if (b.subsumes(a)) {
+                    idx = y;
+                }
+            }
+            copy.splice(idx+1,0,a);
+        }
+        
+        if (!desc) {
+            copy.reverse();
+        }
+        return copy;
+    };
+};
+// File:   Attribute.js <br />
+// Author: <a href="http://github.com/neogermi/">Sebastian Germesin</a>
+//
+
+// Adding capability of handling attribute structure and inheritance to VIE. 
+if (VIE.prototype.Attribute) {
+	throw new Error("ERROR: VIE.Attribute is already defined. Please check your installation!");
+}
+if (VIE.prototype.Attributes) {
+	throw new Error("ERROR: VIE.Attributes is already defined. Please check your installation!");
+}
+
+//The constructor of a VIE.Attribute. 
+//Usage: ``var knowsAttr = new vie.Attribute("knows", ["Person"]);``
+//This creates a attribute that describes a **knows** relationship between persons.
+VIE.prototype.Attribute = function (id, range, domain) {
+    if (id === undefined || typeof id !== 'string') {
+        throw new Error("The attribute constructor needs an 'id' of type string! E.g., 'Person'");
+    }
+    if (range === undefined) {
+        throw new Error("The attribute constructor needs 'range'.");
+    }
+    if (domain === undefined) {
+        throw new Error("The attribute constructor needs a 'domain'.");
+    }
+    
+    this._domain = domain;
+    this.range = (jQuery.isArray(range))? range : [ range ];
+    //TODO! this.count = {};
+   
+    this.id = this.vie.namespaces.isUri(id) ? id : this.vie.namespaces.uri(id);
+    
+    // checks, whether the current attribute applies in the given range.
+    // If range is a string, this does simply string comparison, if it
+    // is a VIE.Type or an ID of a VIE.Type, then inheritance is checked as well.
+    this.applies = function (range) {
+        if (this.vie.types.get(range)) {
+            range = this.vie.types.get(range);
+        }
+        for (var r = 0; r < this.range.length; r++) {
+            var x = this.vie.types.get(this.range[r]);
+            if (x === undefined && typeof range === "string") {
+                if (range === this.range[r]) {
+                    return true;
+                }
+            }
+            else {
+                if (range.isof(this.range[r])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+            
+};
+
+// basically a convenience class that represents a list of `VIE.Attribute`s.
+// As attributes are part of a certain `VIE.Type`, it needs to be passed on
+// for inheritance checks:
+// var attrs = new vie.Attributes(vie.types.get("Thing"), []);
+VIE.prototype.Attributes = function (domain, attrs) {
+    
+    this.domain = domain;
+    
+    this._local = {};
+    this._attributes = {};
+    
+    //add a `VIE.Attribute` to the attributes.
+    //Either pass a full `VIE.Attribute` object or
+    //an id/range pair which then gets transformed into
+    //a VIE.Attribute element.
+    this.add = function (id, range) {
+        if (this.get(id)) {
+            throw new Error("Attribute '" + id + "' already registered for domain " + this.domain.id + "!");
+        } 
+        else {
+            if (typeof id === "string") {
+                var a = new this.vie.Attribute(id, range, this.domain);
+                this._local[a.id] = a;
+                return a;
+            } else if (id instanceof this.vie.Type) {
+                id.domain = this.domain;
+                id.vie = this.vie;
+                this._local[id.id] = id;
+                return id;
+            } else {
+                throw new Error("Wrong argument to VIE.Types.add()!");
+            }
+        }
+    };
+    
+    //removes a `VIE.Attribute` from the attributes.
+    this.remove = function (id) {
+        var a = this.get(id);
+        if (a.id in this._local) {
+            delete this._local[a.id];
+            return a;
+        }
+        throw new Error("The attribute " + id + " is inherited and cannot be removed from the domain " + this.domain.id + "!");
+    };
+    
+    //retrieve a `VIE.Attribute` from the attributes by it's id.
+    this.get = function (id) {
+        if (typeof id === 'string') {
+            var lid = this.vie.namespaces.isUri(id) ? id : this.vie.namespaces.uri(id);
+            return this._inherit()._attributes[lid];
+        } else if (id instanceof this.vie.Attribute) {
+            return this.get(id.id);
+        } else {
+            throw new Error("Wrong argument in VIE.Attributes.get()");
+        }
+    };
+    
+    // creates a full list of all attributes (local and inherited).
+    // the ranges of inherited attributes with the same id will be merged. 
+    this._inherit = function () {
+        var attributes = jQuery.extend(true, {}, this._local);
+        
+        var inherited = _.map(this.domain.supertypes.list(),
+            function (x) {
+               return x.attributes; 
+            }
+        );
+
+        var add = {};
+        var merge = {};
+        
+        for (var a = 0; a < inherited.length; a++) {
+            var attrs = inherited[a].list();
+            for (var x = 0; x < attrs.length; x++) {
+                var id = attrs[x].id;
+                if (!(id in attributes)) {
+                    if (!(id in add) && !(id in merge)) {
+                        add[id] = attrs[x];
+                    }
+                    else {
+                        if (!merge[id]) {
+                            merge[id] = [];
+                        }
+                        if (id in add) {
+                            merge[id] = jQuery.merge(merge[id], add[id].range);
+                            delete add[id];
+                        }
+                        merge[id] = jQuery.merge(merge[id], attrs[x].range);
+                        merge[id] = merge[id].unduplicate();
+                    }
+                }
+            }
+        }
+        
+        //add
+        jQuery.extend(attributes, add);
+        
+        // merge
+        for (var id in merge) {
+            var merged = merge[id];
+            var ranges = [];
+            for (var r = 0; r < merged.length; r++) {
+                var p = this.vie.types.get(merged[r]);
+                var isAncestorOf = false;
+                if (p) {
+                    for (var x = 0; x < merged.length; x++) {
+                        if (x === r) {
+                            continue;
+                        }
+                        var c = this.vie.types.get(merged[x]);
+                        if (c && c.isof(p)) {
+                            isAncestorOf = true;
+                            break;
+                        }
+                    }
+                }
+                if (!isAncestorOf) {
+                    ranges.push(merged[r]);
+                }
+            }
+            attributes[id] = new this.vie.Attribute(id, ranges, this);
+        }
+
+        this._attributes = attributes;
+        return this;
+    };
+
+    // returns an Array of all attributes, combined
+    // with the inherited ones.
+    this.toArray = this.list = function (range) {
+        var ret = [];
+        var attributes = this._inherit()._attributes;
+        for (var a in attributes) {
+            if (!range || attributes[a].applies(range)) {
+                ret.push(attributes[a]);
+            }
+        }
+        return ret;
+    };
+        
+    if (!jQuery.isArray(attrs)) {
+        attrs = [ attrs ];
+    }
+    
+    for (var a = 0; a < attrs.length; a++) {
+        this.add(attrs[a].id, attrs[a].range);
+    }
+};
+// File:   Namespace.js <br />
+// Author: <a href="http://github.com/neogermi/">Sebastian Germesin</a>
+//
+
+// Adding capability of handling different namespaces to VIE. 
+
+if (VIE.prototype.Namespaces) {
+	throw new Error("ERROR: VIE.Namespaces is already defined. Please check your installation!");
+}
+
+ 
+// Usage: ``var namespaces = new VIE.Namespaces("http://base.namespace.com/");``
+// We can also bootstrap namespaces by passing an object:
+//``var namespaces = new vie.Namespaces("http://base.namespace.com/", {"foaf": "http://xmlns.com/foaf/0.1/"});
+VIE.prototype.Namespaces = function (base, namespaces) {
+    
+	// Within VIE, we can define a base namespace, to support easier syntax for
+	// querying types of entities.
+	if (!base) {
+        throw new Error("Please provide a base namespace!");
+    }
+	this._base = base;
+    
+    this.base = function (ns) {
+        // getter
+        if (!ns) { 
+            return this._base;
+        }
+        // setter
+        else if (typeof ns === "string") {
+            this._base = ns;
+        } else {
+            throw new Error("Please provide a valid namespace!");
+        }
+        return this;
+    };
+    
+    this._namespaces = (namespaces)? namespaces : {};
+    
+    //Add new namespacs. This also checks if there are
+    //prefixes or namespaces already defined to avoid
+    //ambiguities in the namespaces. Use `addOrReplace()`
+    //to simply overwrite them. 
+    this.add = function (k, v) {
+        //we can also pass multiple namespaces as an object.
+        if (typeof k === "object") {
+            for (var k1 in k) {
+                this.add(k1, k[k1]);
+            }
+            return this;
+        }
+        //use `add("", "http://new.base.namespace/");` to set
+        //a new base namespace. This is the same as 
+        //`base("http://new.base.namespace/");`
+        if (k === "") {
+            this.base(v);
+        }
+        //check if we overwrite existing mappings
+        else if (this.containsPrefix(k) && v !== this._namespaces[k]) {
+            throw new Error("ERROR: Trying to register namespace prefix mapping (" + k + "," + v + ")!" +
+                  "There is already a mapping existing: '(" + k + "," + this.get(k) + ")'!");
+        } else {
+            jQuery.each(this._namespaces, function (k1,v1) {
+                if (v1 === v && k1 !== k) {
+                    throw new Error("ERROR: Trying to register namespace prefix mapping (" + k + "," + v + ")!" +
+                          "There is already a mapping existing: '(" + k1 + "," + v + ")'!");
+                }
+            });
+        }
+        this._namespaces[k] = v;
+        
+        return this;
+    };
+    
+    // this has the same capabilities as `add(k, v);` but
+    // overwrites already exising mappings.
+    this.addOrReplace = function (k, v) {
+        if (typeof k === "object") {
+            for (var k1 in k) {
+                this.addOrReplace(k1, k[k1]);
+            }
+            return this;
+        }
+        var self = this;
+        //check if we overwrite existing mappings
+        if (this.containsPrefix(k) && v !== this._namespaces[k]) {
+            this.remove(k);
+        } else {
+            jQuery.each(this._namespaces, function (k1,v1) {
+                if (v1 === v && k1 !== k) {
+                    self.remove(k1);
+                }
+            });
+        }
+        return this.add(k, v);
+    };
+    
+    // get a namespace (or *undefined*) for a given prefix.
+    this.get = function (k) {
+        if (k === "") {
+            return this.base();
+        }
+        return this._namespaces[k];
+    };
+
+    // get a prefix (or *undefined*) for a given namespace.
+    this.getPrefix = function (v) {
+        jQuery.each(this._namespaces, function (k1,v1) {
+            if (v1 === v) {
+                return k1;
+            }
+        });
+        return undefined;
+    };
+    
+    // check if a prefix exists. 
+    this.containsPrefix = function (k) {
+        return (k in this._namespaces);
+    };
+    
+    // check if a namespace exists. 
+    this.containsNamespace = function (v) {
+        return this.getPrefix(v) !== undefined;
+    };
+
+    //update the prefix *p* with the namespace *n*.
+	this.update = function (p, n) {
+        this._namespaces[p] = n;
+        return this;
+    };
+    
+    // remove the namespace with the prefix *p*
+    this.remove = function (p) {
+        delete this._namespaces[p];
+        return this;
+    };
+    
+    // return a copy of the internal structure of the namespaces
+    // as key/value pairs.
+    this.toObj = function () {
+        return jQuery.extend({'' : this._base}, this._namespaces);
+    };
+    
+    // transform a URI into a CURIE with the given
+    // namespaces. If *safe* is true, this returns
+    // a SCURIE. 
+    this.curie = function(uri, safe){
+        return VIE.Util.toCurie(uri, safe, this);
+    };
+    
+    // checks whether the given string is a CURIE.
+    this.isCurie = function (something) {
+        return VIE.Util.isCurie(something, this);
+    };
+    
+    // transforms a CURIE into a URI.
+    this.uri = function (curie) {
+        return VIE.Util.toUri(curie, this);
+    };
+    
+    // checks wether the given string is a URI.
+    this.isUri = VIE.Util.isUri;
+};
+// Classic VIE API bindings to new VIE
+VIE.prototype.ClassicRDFa = function(vie) {
+    this.vie = vie;
+};
+
+VIE.prototype.ClassicRDFa.prototype = {
+    readEntities: function(selector) {
+        var jsonEntities = [];
+        var entities = this.vie.RDFaEntities.getInstances(selector);
+        _.each(entities, function(entity) {
+            jsonEntities.push(entity.toJSONLD());
+        });
+        return jsonEntities;
+    },
+
+    findPredicateElements: function(subject, element, allowNestedPredicates) {
+        return this.vie.services.rdfa._findPredicateElements(subject, element, allowNestedPredicates);
+    },
+
+    getPredicate: function(element) {
+        return this.vie.services.rdfa.getElementPredicate(element);
+    },
+
+    getSubject: function(element) {
+        return this.vie.services.rdfa.getElementSubject(element);
+    }
+};
+
+VIE.prototype.ClassicRDFaEntities = function(vie) {
+    this.vie = vie;
+};
+
+VIE.prototype.ClassicRDFaEntities.prototype = {
+    getInstances: function(selector) {
+        if (!this.vie.services.rdfa) {
+            this.vie.use(new this.vie.RdfaService());
+        }
+        var foundEntities = null;
+        var loaded = false;
+        this.vie.load({element: selector}).from('rdfa').execute().done(function(entities) {
+            foundEntities = entities;
+            loaded = true;
+        });
+
+        while (!loaded) {
+        }
+
+        return foundEntities;
+    },
+
+    getInstance: function(selector) {
+        var instances = this.getInstances(selector);
+        if (instances && instances.length) {
+            return instances[0];
+        }
+        return null;
+    }
+};
+
+VIE.prototype.ClassicEntityManager = function(vie) {
+    this.vie = vie;
+    this.entities = this.vie.entities;
+};
+
+VIE.prototype.ClassicEntityManager.prototype = {
+    getBySubject: function(subject) {
+        return this.vie.entities.get(subject);
+    },
+
+    getByJSONLD: function(json) {
+        return this.vie.entities.addOrUpdate(json);
+    },
+
+    initializeCollection: function() {
+        return;
+    }
+};
+// File:   DBPediaService.js <br />
+// Author: <a href="http://github.com/neogermi/">Sebastian Germesin</a>
+//
+
+(function(){
+    
+VIE.prototype.DBPediaService = function(options) {
+    var defaults = {
+        name : 'dbpedia',
+        namespaces : {
+            owl    : "http://www.w3.org/2002/07/owl#",
+            yago   : "http://dbpedia.org/class/yago/",
+            dbonto : 'http://dbpedia.org/ontology/'
+        }
+    };
+    this.options = jQuery.extend(defaults, options ? options : {});
+
+    this.vie = null; // will be set via VIE.use();
+    this.name = this.options.name;
+    this.connector = new DBPediaConnector(this.options);
+
+    jQuery.ajaxSetup({
+        converters: {"text application/rdf+json": function(s){return JSON.parse(s);}}
+    });
+
+};
+
+VIE.prototype.DBPediaService.prototype = {
+    init: function() {
+
+       for (var key in this.options.namespaces) {
+            try {
+                var val = this.options.namespaces[key];
+                this.vie.namespaces.add(key, val);
+            } catch (e) {
+                //this means that the namespace is already in the VIE.namespace
+                //ignore for now!
+            }
+        }
+        this.namespaces = new this.vie.Namespaces(this.options.namespaces);
+
+        this.rules = [
+             //rule to transform a DBPedia person into a VIE person
+             {
+                'left' : [
+                    '?subject a <http://dbpedia.org/ontology/Person>'
+                 ],
+                 'right': function(ns){
+                     return function(){
+                         return jQuery.rdf.triple(this.subject.toString() +
+                         ' a <http://schema.org/Person>', {
+                             namespaces: ns
+                         });
+                     };
+                 }(this.namespaces.toObj())
+             }
+        ];
+    },
+
+    // VIE API load implementation
+    load: function(loadable){
+        var correct = loadable instanceof this.vie.Loadable;
+        if (!correct) {throw "Invalid Loadable passed";}
+
+        var service = this;
+        var entity = loadable.options.entity;
+        if (!entity) {
+            //console.warn("DBPediaConnector: No entity to look for!");
+            loadable.resolve([]);
+        }
+        var success = function (results) {
+            var id = entity.replace(/^</, '').replace(/>$/, '');
+
+            if (results[id]) {
+                var e = service.vie.entities.get(entity);
+                if (!e) {
+                    var attrs = {
+                        '@subject': entity,
+                        '@type': results[id]["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"]
+                    };
+                    delete results[id]["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"];
+                    jQuery.extend(attrs, results[id]);
+                    service.vie.entities.add(attrs);
+                    e = service.vie.entities.get(entity);
+                }
+                loadable.resolve([e]);
+            } else {
+                loadable.reject(undefined);
+            }
+        };
+        var error = function (e) {
+            loadable.reject(e);
+        };
+        this.connector.load(entity, success, error);
+    }
+};
+var DBPediaConnector = function(options){
+    this.options = options;
+};
+
+DBPediaConnector.prototype = {
+
+    load: function (uri, success, error, options) {
+        if (!options) { options = {}; }
+        var url = uri
+        .replace(/^</, '').replace(/>$/, '')
+        .replace('resource', 'data') + ".jrdf";
+
+        var format = options.format || "application/rdf+json";
+
+        if (typeof exports !== "undefined" && typeof process !== "undefined") {
+            // We're on Node.js, don't use jQuery.ajax
+            return this.loadNode(url, success, error, options, format);
+        }
+
+        jQuery.ajax({
+            success: function(response){
+                success(response);
+            },
+            error: error,
+            type: "GET",
+            url: url,
+            dataType: "jsonp"
+        });
+    },
+
+    loadNode: function (uri, success, error, options, format) {
+        var request = require('request');
+        var r = request({
+            method: "GET",
+            uri: uri,
+            headers: {
+                Accept: format
+            }
+        }, function(error, response, body) {
+            success({results: JSON.parse(body)});
+        });
+        r.end();
+    }
+};
+})();
+
+VIE.prototype.RdfaRdfQueryService = function(options) {
+    if (!options) {
+        options = {};
+    }
+    this.vie = null;
+    this.name = 'rdfardfquery';
+};
+
+VIE.prototype.RdfaRdfQueryService.prototype = {
+    
+    analyze: function(analyzable) {
+        analyzable.reject("Not yet implemented");
+    },
+        
+    load : function(loadable) {
+        loadable.reject("Not yet implemented");
+    },
+
+    save : function(savable) {
+        var correct = savable instanceof this.vie.Savable;
+        if (!correct) {
+            savable.reject("Invalid Savable passed");
+        }
+    
+        if (!savable.options.element) {
+            savable.reject("Unable to write entity to RDFa, no element given");
+        }
+    
+        if (!savable.options.entity) {
+            savable.reject("Unable to write to RDFa, no entity given");
+        }
+        
+        if (!jQuery.rdf) {
+            savable.reject("No rdfQuery found.");
+        }
+        
+        var entity = savable.options.entity;
+        
+        var triples = [];
+        triples.push(entity.getSubject() + " a " + entity.get('@type'));
+        //TODO: add all attributes!
+        jQuery(savable.options.element).rdfa(triples);
+    
+        savable.resolve();
+    }
+    
+};
+VIE.prototype.RdfaService = function(options) {
+    if (!options) {
+        options = {};
+    }
+    this.vie = null;
+    this.name = 'rdfa';
+    this.subjectSelector = options.subjectSelector ? options.subjectSelector : "[about],[typeof],[src],[href],html";
+    this.predicateSelector = options.predicateSelector ? options.predicateSelector : "[property],[rel]";
+    this.views = [];
+};
+
+VIE.prototype.RdfaService.prototype = {
+    
+    analyze: function(analyzable) {
+        // in a certain way, analyze is the same as load
+        var service = this;
+
+        var correct = analyzable instanceof this.vie.Analyzable;
+        if (!correct) {throw "Invalid Analyzable passed";}
+
+        return this.load(new this.vie.Loadable({element : analyzable.options.element}));
+    },
+        
+    load : function(loadable) {
+        var service = this;
+        var correct = loadable instanceof this.vie.Loadable;
+        if (!correct) {
+            throw "Invalid Loadable passed";
+        }
+
+        var element;
+        if (!loadable.options.element) {
+            if (typeof document === 'undefined') { 
+                return loadable.resolve([]);
+            }
+            element = jQuery(document);
+        } else {
+            element = loadable.options.element;
+        }
+    
+        var ns = this.xmlns(element);
+        for (var prefix in ns) {
+            this.vie.namespaces.addOrReplace(prefix, ns[prefix]);
+        }
+        
+        var entities = [];
+        jQuery(this.subjectSelector, element).add(jQuery(element).filter(this.subjectSelector)).each(function() {
+            var entity = service._readEntity(jQuery(this));
+            if (entity) {
+                entities.push(entity);
+            }
+        });
+        loadable.resolve(entities);
+    },
+
+    save : function(savable) {
+        var correct = savable instanceof this.vie.Savable;
+        if (!correct) {
+            throw "Invalid Savable passed";
+        }
+    
+        if (!savable.options.element) {
+            // FIXME: we could find element based on subject
+            throw "Unable to write entity to RDFa, no element given";
+        }
+    
+        if (!savable.options.entity) {
+            throw "Unable to write to RDFa, no entity given";
+        }
+    
+        this._writeEntity(savable.options.entity, savable.options.element);
+        savable.resolve();
+    },
+    
+    _readEntity : function(element) {
+        var subject = this.getElementSubject(element);
+        var type = this._getElementType(element);
+        var predicate, value, valueCollection;
+        
+        var entity = this._readEntityPredicates(subject, element, false);
+        //if (jQuery.isEmptyObject(entity)) {
+        //    return null;
+        //}
+
+        for (predicate in entity) {
+            value = entity[predicate];
+            if (!_.isArray(value)) {
+                continue;
+            }
+            valueCollection = new this.vie.Collection();
+            _.each(value, function(valueItem) {
+                valueCollection.addOrUpdate({'@subject': valueItem});
+            });
+            entity[predicate] = valueCollection;
+        }
+    
+        entity['@subject'] = subject;
+        if (type) {
+            entity['@type'] = type;
+        }
+        
+        var entityInstance = new this.vie.Entity(entity);
+        entityInstance = this.vie.entities.addOrUpdate(entityInstance);
+        this._registerEntityView(entityInstance, element);
+        return entityInstance;
+    },
+    
+    _writeEntity : function(entity, element) {
+        var service = this;
+        this._findPredicateElements(this.getElementSubject(element), element, true).each(function() {
+            var predicateElement = jQuery(this);
+            var predicate = service.getElementPredicate(predicateElement);
+            if (!entity.has(predicate)) {
+                return true;
+            }
+    
+            var value = entity.get(predicate);
+            if (value === service.readElementValue(predicate, predicateElement)) {
+                return true;
+            }
+    
+            service.writeElementValue(predicate, predicateElement, value);
+        });
+        return true;
+    },
+    
+    _getViewForElement : function(element, collectionView) {
+        var viewInstance;
+        jQuery.each(this.views, function() {
+            if (this.el.get(0) === element.get(0)) {
+                if (collectionView && !this.template) {
+                    return true;
+                }
+                viewInstance = this;
+                return false;
+            }
+        });
+        return viewInstance;
+    },
+    
+    _registerEntityView : function(entity, element) {
+        var service = this;
+        var viewInstance = this._getViewForElement(element);
+        if (viewInstance) {
+            return viewInstance;
+        }
+    
+        viewInstance = new this.vie.view.Entity({
+            model: entity,
+            el: element,
+            tagName: element.get(0).nodeName,
+            vie: this.vie,
+            service: this.name
+        });
+        this.views.push(viewInstance);
+    
+        // Find collection elements and create collection views for them
+        _.each(entity.attributes, function(value, predicate) {
+            var attributeValue = entity.fromReference(entity.get(predicate));
+            if (attributeValue instanceof service.vie.Collection) {
+                jQuery.each(service.getElementByPredicate(predicate, element), function() {
+                    service._registerCollectionView(attributeValue, jQuery(this));
+                });
+            }
+        });
+        return viewInstance;
+    },
+    
+    _registerCollectionView : function(collection, element) {
+        var viewInstance = this._getViewForElement(element, true);
+        if (viewInstance) {
+            return viewInstance;
+        }
+    
+        var entityTemplate = element.children(':first-child');
+    
+        viewInstance = new this.vie.view.Collection({
+            collection: collection,
+            model: collection.model,
+            el: element,
+            template: entityTemplate,
+            service: this,
+            tagName: element.get(0).nodeName
+        });
+        this.views.push(viewInstance);
+        return viewInstance;
+    },
+    
+    _getElementType : function (element) {
+        var type;
+        if (jQuery(element).attr('typeof')) {
+            type = jQuery(element).attr('typeof');
+            if (type.indexOf("://") !== -1) {
+                return "<" + type + ">";
+            } else {
+                return type;
+            }
+        }
+        return null;
+    },
+    
+    getElementSubject : function(element) {
+        var service = this;
+        
+        if (typeof document !== 'undefined') {
+            if (element === document) {
+                return document.baseURI;
+            }
+        }
+        var subject = undefined;
+        jQuery(element).closest(this.subjectSelector).each(function() {
+            if (jQuery(this).attr('about') !== undefined) {
+                subject = jQuery(this).attr('about');
+                return true;
+            }
+            if (jQuery(this).attr('src')) {
+                subject = jQuery(this).attr('src');
+                return true;
+            }
+            if (jQuery(this).attr('typeof')) {
+                subject = VIE.Util.blankNodeID();
+                //subject = this;
+                return true;
+            }
+    
+            // We also handle baseURL outside browser context by manually
+            // looking for the `<base>` element inside HTML head.
+            if (jQuery(this).get(0).nodeName === 'HTML') {
+                jQuery(this).find('base').each(function() {
+                    subject = jQuery(this).attr('href');
+                });
+            }
+        });
+                
+        if (!subject) {
+            return undefined;
+        }
+                
+        if (typeof subject === 'object') {
+            return subject;
+        }
+    
+        return (subject.indexOf("_:") === 0)? subject : "<" + subject + ">";
+    },
+    
+    setElementSubject : function(subject, element) {
+        if (jQuery(element).attr('src')) {
+            return jQuery(element).attr('src', subject);
+        }
+        return jQuery(element).attr('about', subject);
+    },
+    
+    getElementPredicate : function(element) {
+        var predicate;
+        predicate = element.attr('property');
+        if (!predicate) {
+            predicate = element.attr('rel');
+        }
+        return predicate;
+    },
+    
+    getElementBySubject : function(subject, element) {
+        var service = this;
+        return jQuery(element).find(this.subjectSelector).add(jQuery(element).filter(this.subjectSelector)).filter(function() {
+            if (service.getElementSubject(jQuery(this)) !== subject) {
+                return false;
+            }
+     
+            return true;
+        });
+    },
+    
+    getElementByPredicate : function(predicate, element) {
+        var service = this;
+        var subject = this.getElementSubject(element);
+        return jQuery(element).find(this.predicateSelector).add(jQuery(element).filter(this.predicateSelector)).filter(function() {
+            var foundPredicate = service.getElementPredicate(jQuery(this));
+            if (service.vie.namespaces.curie(foundPredicate) !== service.vie.namespaces.curie(predicate)) {
+                return false;
+            }
+    
+            if (service.getElementSubject(jQuery(this)) !== subject) {
+                return false;
+            }
+     
+            return true;
+        });
+    },
+    
+    _readEntityPredicates : function(subject, element, emptyValues) {
+        var service = this;
+        var entityPredicates = {};
+    
+        this._findPredicateElements(subject, element, true).each(function() {
+            var predicateElement = jQuery(this);
+            var predicate = service.getElementPredicate(predicateElement);
+            var value = service.readElementValue(predicate, predicateElement);
+    
+            if (value === null && !emptyValues) {
+                return;
+            }
+   
+            entityPredicates[predicate] = value;
+        });
+    
+        if (jQuery(element).get(0).tagName !== 'HTML') {
+            jQuery(element).parent('[rev]').each(function() {
+                entityPredicates[jQuery(this).attr('rev')] = service.getElementSubject(this); 
+            });
+        }
+    
+        return entityPredicates;
+    },
+    
+    _findPredicateElements : function(subject, element, allowNestedPredicates) {
+        var service = this;
+        return jQuery(element).find(this.predicateSelector).add(jQuery(element).filter(this.predicateSelector)).filter(function() {
+            if (service.getElementSubject(this) !== subject) {
+                return false;
+            }
+            if (!allowNestedPredicates) {
+                if (!jQuery(this).parents('[property]').length) {
+                    return true;
+                }
+                return false;
+            }
+    
+            return true;
+        });
+    },
+    
+    readElementValue : function(predicate, element) {
+        // The `content` attribute can be used for providing machine-readable
+        // values for elements where the HTML presentation differs from the
+        // actual value.
+        var content = element.attr('content');
+        if (content) {
+            return content;
+        }
+                
+        // The `resource` attribute can be used to link a predicate to another
+        // RDF resource.
+        var resource = element.attr('resource');
+        if (resource) {
+            return "<" + resource + ">";
+        }
+                
+        // `href` attribute also links to another RDF resource.
+        var href = element.attr('href');
+        if (href && element.attr('rel') === predicate) {
+            return "<" + href + ">";
+        }
+    
+        // If the predicate is a relation, we look for identified child objects
+        // and provide their identifiers as the values. To protect from scope
+        // creep, we only support direct descentants of the element where the
+        // `rel` attribute was set.
+        if (element.attr('rel')) {
+            var value = [];
+            var service = this;
+            jQuery(element).children(this.subjectSelector).each(function() {
+                value.push(service.getElementSubject(this));
+            });
+            return value;
+        }
+    
+        // If none of the checks above matched we return the HTML contents of
+        // the element as the literal value.
+        return element.html();
+    },
+    
+    writeElementValue : function(predicate, element, value) {
+        //TODO: this is a hack, please fix!
+        if (value instanceof Array && value.length > 0) {
+            value = value[0];
+        }
+        
+        // The `content` attribute can be used for providing machine-readable
+        // values for elements where the HTML presentation differs from the
+        // actual value.
+        var content = element.attr('content');
+        if (content) {
+            element.attr('content', value);
+            return;
+        }
+                
+        // The `resource` attribute can be used to link a predicate to another
+        // RDF resource.
+        var resource = element.attr('resource');
+        if (resource) {
+            element.attr('resource', value);
+        }
+    
+        // Property has inline value. Change the HTML contents of the property
+        // element to match the new value.
+        element.html(value);
+    },
+    
+    // mostyl copied from http://code.google.com/p/rdfquery/source/browse/trunk/jquery.xmlns.js
+    xmlns : function (elem) {
+        var $elem;
+        if (!elem) {
+            if (typeof document === 'undefined') { 
+                return {};
+            }
+            $elem = jQuery(document);
+        } else {
+            $elem = jQuery(elem);
+        }
+        
+        var obj = {};
+        
+        $elem.each(function (i, e) {
+            if (e.attributes && e.attributes.getNamedItemNS) {
+                for (i = 0; i < e.attributes.length; i += 1) {
+                    var attr = e.attributes[i];
+                    if (/^xmlns(:(.+))?$/.test(attr.nodeName)) {
+                        var prefix = /^xmlns(:(.+))?$/.exec(attr.nodeName)[2] || '';
+                        var value = attr.nodeValue;
+                        if (prefix === '' || value !== '') {
+                            obj[prefix] = attr.nodeValue;
+                        }
+                    }
+                }
+            }
+        });
+        
+        return obj;
+    }
+
+};
+// File:   StanbolService.js
+// Author: <a href="mailto:sebastian.germesin@dfki.de">Sebastian Germesin</a>
+// Author: <a href="mailto:szaby.gruenwald@salzburgresearch.at">Szaby Gruenwald</a>
+//
+(function(){
+VIE.prototype.StanbolService = function(options) {
+    var defaults = {
+        name : 'stanbol',
+        url: 'http://dev.iks-project.eu:8080/',
+        defaultProxyUrl : "../utils/proxy/proxy.php",
+        namespaces : {
+            semdeski : "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
+            semdeskf : "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#",
+            skos: "http://www.w3.org/2004/02/skos/core#",
+            foaf: "http://xmlns.com/foaf/0.1/",
+            opengis: "http://www.opengis.net/gml/",
+            dbpedia: "http://dbpedia.org/ontology/",
+            owl : "http://www.w3.org/2002/07/owl#",
+            geonames : "http://www.geonames.org/ontology#",
+            enhancer : "http://fise.iks-project.eu/ontology/",
+            entityhub: "http://www.iks-project.eu/ontology/rick/model/",
+            entityhub2: "http://www.iks-project.eu/ontology/rick/query/",
+            rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            rdfschema: "http://www.w3.org/2000/01/rdf-schema#",
+            dc  : 'http://purl.org/dc/terms/',
+            foaf: 'http://xmlns.com/foaf/0.1/',
+            schema: 'http://schema.org/',
+            geo: 'http://www.w3.org/2003/01/geo/wgs84_pos#',
+            skos: "http://www.w3.org/2004/02/skos/core"
+        }
+    };
+    this.options = jQuery.extend(true, defaults, options ? options : {});
+
+    this.vie = null; // will be set via VIE.use();
+    this.name = this.options.name;
+    this.connector = new StanbolConnector(this.options);
+
+    jQuery.ajaxSetup({
+        converters: {"text application/rdf+json": function(s){return JSON.parse(s);}}
+    });
+
+};
+
+VIE.prototype.StanbolService.prototype = {
+    init: function(){
+
+        for (var key in this.options.namespaces) {
+            try {
+                var val = this.options.namespaces[key];
+                this.vie.namespaces.add(key, val);
+            } catch (e) {
+                //this means that the namespace is already in the VIE.namespace
+                //ignore for now!
+            }
+        }
+        this.namespaces = new this.vie.Namespaces(this.vie.namespaces.base(), this.options.namespaces);
+
+        this.rules = [
+            //rule to add backwards-relations to the triples
+            //this makes querying for entities a lot easier!
+            {'left' : [
+                '?subject a <http://fise.iks-project.eu/ontology/EntityAnnotation>',
+                '?subject enhancer:entity-type ?type',
+                '?subject enhancer:confidence ?confidence',
+                '?subject enhancer:entity-reference ?entity',
+                '?subject dc:relation ?relation',
+                '?relation a <http://fise.iks-project.eu/ontology/TextAnnotation>',
+                '?relation enhancer:selected-text ?selected-text',
+                '?relation enhancer:selection-context ?selection-context',
+                '?relation enhancer:start ?start',
+                '?relation enhancer:end ?end'
+            ],
+             'right' : [
+                 '?entity a ?type',
+                 '?entity enhancer:hasTextAnnotation ?relation',
+                 '?entity enhancer:hasEntityAnnotation ?subject'
+             ]
+             },
+             //rule(s) to transform a Stanbol person into a VIE person
+             {
+                'left' : [
+                    '?subject a dbpedia:Person',
+                    '?subject rdfschema:label ?label'
+                 ],
+                 'right': function(ns){
+                     return function(){
+                         return [
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 'a',
+                                 '<' + ns.base() + 'Person>', {
+                                     namespaces: ns.toObj()
+                                 }),
+                             jQuery.rdf.triple(this.subject.toString(),
+                                 '<' + ns.base() + 'name>',
+                                 this.label, {
+                                     namespaces: ns.toObj()
+                                 })
+                             ];
+                     };
+                 }(this.namespaces)
+             },
+             {
+             'left' : [
+                     '?subject a foaf:Person',
+                     '?subject rdfschema:label ?label'
+                  ],
+                  'right': function(ns){
+                      return function(){
+                          return [
+                              jQuery.rdf.triple(this.subject.toString(),
+                                  'a',
+                                  '<' + ns.base() + 'Person>', {
+                                      namespaces: ns.toObj()
+                                  }),
+                              jQuery.rdf.triple(this.subject.toString(),
+                                  '<' + ns.base() + 'name>',
+                                  this.label, {
+                                      namespaces: ns.toObj()
+                                  })
+                              ];
+                      };
+                  }(this.namespaces)
+              },
+             {
+                 'left' : [
+                     '?subject a dbpedia:Place',
+                     '?subject rdfschema:label ?label'
+                  ],
+                  'right': function(ns) {
+                      return function() {
+                          return [
+                          jQuery.rdf.triple(this.subject.toString(),
+                              'a',
+                              '<' + ns.base() + 'Place>', {
+                                  namespaces: ns.toObj()
+                              }),
+                          jQuery.rdf.triple(this.subject.toString(),
+                                  '<' + ns.base() + 'name>',
+                              this.label.toString(), {
+                                  namespaces: ns.toObj()
+                              })
+                          ];
+                      };
+                  }(this.namespaces)
+              },
+        ];
+
+        this.vie.types.addOrOverwrite('enhancer:EntityAnnotation', [
+            //TODO: add attributes
+        ]).inherit("Thing");
+        this.vie.types.addOrOverwrite('enhancer:TextAnnotation', [
+            //TODO: add attributes
+        ]).inherit("Thing");
+        this.vie.types.addOrOverwrite('enhancer:Enhancement', [
+            //TODO: add attributes
+        ]).inherit("Thing");
+    },
+    // VIE API analyze implementation
+    analyze: function(analyzable) {
+        var service = this;
+
+        var correct = analyzable instanceof this.vie.Analyzable;
+        if (!correct) {throw "Invalid Analyzable passed";}
+
+        var element = analyzable.options.element ? analyzable.options.element : jQuery('body');
+
+        var text = service._extractText(element);
+
+        if (text.length > 0) {
+            var service = this;
+            //query enhancer with extracted text
+            var success = function (results) {
+                _.defer(function(){
+                    var entities = service._enhancer2Entities(service, results);
+                    analyzable.resolve(entities);
+                });
+            };
+            var error = function (e) {
+                analyzable.reject(e);
+            };
+
+            this.connector.analyze(text, success, error);
+
+        } else {
+            console.warn("No text found in element.");
+            analyzable.resolve([]);
+        }
+
+    },
+
+    // VIE API load implementation
+    // Runs a Stanbol entityhub find
+    find: function(findable){
+        var correct = findable instanceof this.vie.Findable;
+        if (!correct) {throw "Invalid Findable passed";}
+        var service = this;
+        // The term to find, * as wildcard allowed
+        var term = escape(findable.options.term);
+        if(!term){
+            console.warn("StanbolConnector: No term to look for!");
+            findable.resolve([]);
+        };
+        var limit = (typeof findable.options.limit === "undefined") ? 20 : findable.options.limit;
+        var offset = (typeof findable.options.offset === "undefined") ? 0 : findable.options.offset;
+        var success = function (results) {
+            _.defer(function(){
+                var entities = service._enhancer2Entities(service, results);
+                findable.resolve(entities);
+            });
+        };
+        var error = function (e) {
+            findable.reject(e);
+        };
+        this.connector.find(term, limit, offset, success, error);
+    },
+
+    // VIE API load implementation
+    // Runs a Stanbol entityhub find
+    load: function(loadable){
+        var correct = loadable instanceof this.vie.Loadable;
+        if (!correct) {throw "Invalid Loadable passed";}
+        var service = this;
+
+        var entity = loadable.options.entity;
+        if(!entity){
+            console.warn("StanbolConnector: No entity to look for!");
+            loadable.resolve([]);
+        };
+        var success = function (results) {
+            _.defer(function(){
+                var entities = service._enhancer2Entities(service, results);
+                loadable.resolve(entities);
+            });
+        };
+        var error = function (e) {
+            loadable.reject(e);
+        };
+        this.connector.load(entity, success, error);
+    },
+
+    _extractText: function (element) {
+        if (element.get(0) &&
+            element.get(0).tagName &&
+            (element.get(0).tagName == 'TEXTAREA' ||
+            element.get(0).tagName == 'INPUT' && element.attr('type', 'text'))) {
+            return element.get(0).val();
+        }
+        else {
+            var res = element
+                .text()    //get the text of element
+                .replace(/\s+/g, ' ') //collapse multiple whitespaces
+                .replace(/\0\b\n\r\f\t/g, ''); // remove non-letter symbols
+            return jQuery.trim(res);
+        }
+    },
+
+    _enhancer2Entities: function (service, results) {
+        //transform data from Stanbol into VIE.Entities
+
+        if (typeof jQuery.rdf !== 'function') {
+            return this._enhancer2EntitiesNoRdfQuery(service, results);
+        }
+        var rdf = jQuery.rdf().load(results, {});
+
+        //execute rules here!
+        if (service.rules) {
+            var rules = jQuery.rdf.ruleset();
+            for (var prefix in service.namespaces.toObj()) {
+                if (prefix !== "") {
+                	rules.prefix(prefix, service.namespaces.get(prefix));
+                }
+            }
+            for (var i = 0; i < service.rules.length; i++) {
+                rules.add(service.rules[i]['left'], service.rules[i]['right']);
+            }
+            rdf = rdf.reason(rules, 10); // execute the rules only 10 times to avoid looping
+        }
+        var entities = {};
+        rdf.where('?subject ?property ?object').each(function() {
+            var subject = this.subject.toString();
+            if (!entities[subject]) {
+                entities[subject] = {
+                    '@subject': subject,
+                    '@context': service.namespaces.toObj(),
+                    '@type': []
+                };
+            }
+            var propertyUri = this.property.toString();
+            var propertyCurie;
+
+            propertyUri = propertyUri.substring(1, propertyUri.length - 1);
+            try {
+                property = jQuery.createCurie(propertyUri, {namespaces: service.namespaces.toObj()});
+            } catch (e) {
+                property = propertyUri;
+                console.warn(propertyUri + " doesn't have a namespace definition in '", service.namespaces.toObj());
+            }
+            entities[subject][property] = entities[subject][property] || [];
+
+            function getValue(rdfQueryLiteral){
+                if(typeof rdfQueryLiteral.value === "string"){
+                    if (rdfQueryLiteral.lang)
+                        return rdfQueryLiteral.toString();
+                    else
+                        return rdfQueryLiteral.value;
+                    return rdfQueryLiteral.value.toString();
+                } else if (rdfQueryLiteral.type === "uri"){
+                    return rdfQueryLiteral.toString();
+                } else {
+                    return rdfQueryLiteral.value;
+                }
+            }
+            entities[subject][property].push(getValue(this.object));
+        });
+
+        _(entities).each(function(ent){
+            ent["@type"] = ent["@type"].concat(ent["rdf:type"]);
+            delete ent["rdf:type"];
+            _(ent).each(function(value, property){
+                if(value.length === 1){
+                    ent[property] = value[0];
+                }
+            });
+        });
+
+        var vieEntities = [];
+        jQuery.each(entities, function() {
+            var entityInstance = new service.vie.Entity(this);
+            entityInstance = service.vie.entities.addOrUpdate(entityInstance);
+            vieEntities.push(entityInstance);
+        });
+        return vieEntities;
+    },
+
+    _enhancer2EntitiesNoRdfQuery: function (service, results) {
+        jsonLD = [];
+        _.forEach(results, function(value, key) {
+            var entity = {};
+            entity['@subject'] = '<' + key + '>';
+            _.forEach(value, function(triples, predicate) {
+                predicate = '<' + predicate + '>';
+                _.forEach(triples, function(triple) {
+                    if (triple.type === 'uri') {
+                        triple.value = '<' + triple.value + '>';
+                    }
+
+                    if (entity[predicate] && !_.isArray(entity[predicate])) {
+                        entity[predicate] = [entity[predicate]];
+                    }
+
+                    if (_.isArray(entity[predicate])) {
+                        entity[predicate].push(triple.value);
+                        return;
+                    }
+                    entity[predicate] = triple.value;
+                });
+            });
+            jsonLD.push(entity);
+        });
+        return jsonLD;
+    }
+};
+
+var StanbolConnector = function(options){
+    this.options = options;
+    this.baseUrl = options.url.replace(/\/$/, '');
+    this.enhancerUrlPrefix = "/engines";
+    this.entityhubUrlPrefix = "/entityhub";
+    //TODO: this.ontonetUrlPrefix = "/ontonet";
+    //TODO: this.rulesUrlPrefix = "/rules";
+    //TODO: this.factstoreUrlPrefix = "/factstore";
+};
+StanbolConnector.prototype = {
+
+    analyze: function(text, success, error, options) {
+        if (!options) { options = {}; }
+        var enhancerUrl = this.baseUrl + this.enhancerUrlPrefix;
+        var proxyUrl = this._proxyUrl();
+        var format = options.format || "application/rdf+json";
+
+        if (typeof exports !== "undefined" && typeof process !== "undefined") {
+            // We're on Node.js, don't use jQuery.ajax
+            return this.analyzeNode(enhancerUrl, text, success, error, options, format);
+        }
+
+        jQuery.ajax({
+            success: function(response){
+                success(response);
+            },
+            error: error,
+            type: "POST",
+            url: proxyUrl || enhancerUrl,
+            data: (proxyUrl) ? {
+                    proxy_url: enhancerUrl,
+                    content: text,
+                    verb: "POST",
+                    format: format
+                } : text,
+            dataType: format,
+            contentType: proxyUrl ? undefined : "text/plain",
+            accepts: {"application/rdf+json": "application/rdf+json"}
+
+        });
+    },
+
+    analyzeNode: function(url, text, success, error, options, format) {
+        var request = require('request');
+        var r = request({
+            method: "POST",
+            uri: url,
+            body: text,
+            headers: {
+                Accept: format
+            }
+        }, function(error, response, body) {
+            success({results: JSON.parse(body)});
+        });
+        r.end();
+    },
+
+    load: function (uri, success, error, options) {
+        if (!options) { options = {}; }
+        uri = uri.replace(/^</, '').replace(/>$/, '');
+        var url = this.baseUrl + this.entityhubUrlPrefix + "/sites/entity?id=" + escape(uri);
+        var proxyUrl = this._proxyUrl();
+        var format = options.format || "application/rdf+json";
+
+        jQuery.ajax({
+            success: function(response){
+                success(response);
+            },
+            error: error,
+            type: (proxyUrl) ? "POST" : "GET",
+            url: proxyUrl || url,
+            data: (proxyUrl) ? {
+                    proxy_url: url,
+                    content: "",
+                    verb: "GET",
+                    format: format
+                } : null,
+            dataType: format,
+            contentType: proxyUrl ? undefined : "text/plain",
+            accepts: {"application/rdf+json": "application/rdf+json"}
+        });
+    },
+
+    find: function (term, limit, offset, success, error, options) {
+        // curl -X POST -d "name=Bishofsh&limit=10&offset=0" http://localhost:8080/entityhub/sites/find
+        if (!options) { options = {}; }
+        if (offset == null) {
+            offset = 0;
+        }
+        if (limit == null) {
+            limit = 10;
+        }
+
+        var url = this.baseUrl + this.entityhubUrlPrefix + "/sites/find";
+        var proxyUrl = this._proxyUrl();
+        var format = options.format || "application/rdf+json";
+
+        jQuery.ajax({
+            success: function(response){
+                success(response);
+            },
+            error: error,
+            type: "POST",
+            url: proxyUrl || url,
+            data: (proxyUrl) ? {
+                    proxy_url: url,
+                    content: {
+                        name : term,
+                        limit : limit,
+                        offset: offset
+                    },
+                    verb: "POST",
+                    format: format,
+                    type: "text/plain"
+                } : "name=" + term + "&limit=" + limit + "&offset=" + offset,
+            dataType: format,
+            accepts: {"application/rdf+json": "application/rdf+json"}
+        });
+    },
+
+    _proxyUrl: function(){
+        this.proxyUrl = "";
+        if(this.baseUrl.indexOf(":") !== -1 && !this.options.proxyDisabled){
+            return this.options.proxyUrl || this.options.defaultProxyUrl;
+        } else {
+            return '';
+        }
+    }
+};
+})();
+
+if (!VIE.prototype.view) {
+    VIE.prototype.view = {};
+}
+
+VIE.prototype.view.Collection = Backbone.View.extend({
+    // Ensure the collection view gets updated when items get added or removed
+    initialize: function() {
+        this.template = this.options.template;
+        this.service = this.options.service;
+        if (!this.service) {
+            throw "No RDFa service provided to the Collection View";
+        }
+
+        this.entityViews = {};
+        _.bindAll(this, 'addItem', 'removeItem', 'refreshItems');
+        this.collection.bind('add', this.addItem);
+        this.collection.bind('remove', this.removeItem);
+
+        // Make the view aware of existing entities in collection
+        var view = this;
+        this.collection.forEach(function(entity) {
+            view.registerItem(entity, view.collection);
+        });
+    },
+
+    addItem: function(entity, collection) {
+        if (collection !== this.collection) {
+            return;
+        }
+
+        if (!this.template || this.template.length === 0) {
+            return;
+        }
+
+        var entityView = this.service._registerEntityView(entity, this.cloneElement(this.template));
+        var entityElement = entityView.render().el;
+        if (entity.id) {
+            this.service.setElementSubject(entity.getSubjectUri(), entityElement);
+        }
+
+        // TODO: Ordering
+        this.el.append(entityElement);
+
+        // Ensure we catch all inferred predicates. We add these via JSONLD
+        // so the references get properly Collectionized.
+        var service = this.service;
+        jQuery(entityElement).parent('[rev]').each(function() {
+            var predicate = jQuery(this).attr('rev');
+            var relations = {};
+            relations[predicate] = new service.vie.Collection();
+            relations[predicate].addOrUpdate(service.vie.entities.get(service.getElementSubject(this)));
+            entity.set(relations);
+        });
+        
+        this.trigger('add', entityView);
+        this.entityViews[entity.cid] = entityView;
+        entityElement.show();
+    },
+
+    registerItem: function(entity, collection) {
+        var element = this.service.getElementBySubject(entity.id, this.el);
+        if (!element) {
+            return;
+        }
+
+        var entityView = this.service._registerEntityView(entity, element);
+        this.entityViews[entity.cid] = entityView;
+    },
+
+    removeItem: function(entity) {
+        if (!this.entityViews[entity.cid]) {
+            return;
+        }
+
+        this.trigger('remove', this.entityViews[entity.cid]);
+        this.entityViews[entity.cid].el.remove();
+        delete(this.entityViews[entity.cid]);
+    },
+
+    refreshItems: function(collection) {
+        var view = this;
+        jQuery(this.el).empty();
+        collection.forEach(function(entity) {
+            view.addItem(entity, collection);
+        });
+    },
+
+    cloneElement: function(element) {
+        var newElement = jQuery(element).clone(false);
+        var service = this.service;
+        if (typeof newElement.attr('about') !== 'undefined') {
+            // Direct match with container
+            newElement.attr('about', '');
+        }
+        newElement.find('[about]').attr('about', '');
+        var subject = this.service.getElementSubject(newElement);
+        service._findPredicateElements(subject, newElement, false).each(function() {
+            service.writeElementValue(null, jQuery(this), '');
+        });
+        return newElement;
+    }
+});
+if (!VIE.prototype.view) {
+    VIE.prototype.view = {};
+}
+
+VIE.prototype.view.Entity = Backbone.View.extend({
+    initialize: function(options) {
+        this.service = options.service ? options.service : 'rdfa';
+        this.vie = options.vie;
+
+        // Ensure view gets updated when properties of the Entity change.
+        _.bindAll(this, 'render');
+        this.model.bind('change', this.render);
+    },
+
+    // Rendering a view means writing the properties of the Entity back to
+    // the element containing our RDFa annotations.
+    render: function() {
+        this.vie.save({
+                element: this.el, 
+                entity: this.model
+            }).
+            to(this.service).
+            execute();
+        return this;
+    }
+}); })();
